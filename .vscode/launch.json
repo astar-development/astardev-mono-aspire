@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C#: AStarDev.AppHost [https]",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/src/AStarDev.AppHost/AStarDev.AppHost.csproj",
+            "launchConfigurationId": "https"
+        },
+        {
+            "name": "C#: AStarDev.AppHost [http]",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/src/AStarDev.AppHost/AStarDev.AppHost.csproj",
+            "launchConfigurationId": "http"
+        },
+    ]
+}

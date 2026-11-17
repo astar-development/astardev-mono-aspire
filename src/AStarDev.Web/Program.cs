@@ -10,12 +10,16 @@ using Blazored.LocalStorage;
 using Microsoft.FluentUI.AspNetCore.Components;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add service defaults & Aspire client integrations.
+builder.AddServiceDefaults();
 builder.AddOTelLogging("AStarDev.Web");
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddOutputCache();
 builder.Services.AddFluentUIComponents();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddMemoryCache();
@@ -46,8 +50,13 @@ app.UseHttpsRedirection();
 
 app.UseAntiforgery();
 
+app.UseOutputCache();
+
 app.MapStaticAssets();
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapDefaultEndpoints();
 
 await app.RunAsync();
