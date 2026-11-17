@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/tests/">
+    <Project Path="tests/AStarDev.ApiService.TestsIntegration/AStarDev.ApiService.TestsIntegration.csproj" />
+    <Project Path="tests/AStarDev.Web.TestsIntegration/AStarDev.Web.TestsIntegration.csproj" />
+  </Folder>
+  <Project Path="src/AStarDev.ApiService/AStarDev.ApiService.csproj" />
+  <Project Path="src/AStarDev.AppHost/AStarDev.AppHost.csproj" />
+  <Project Path="src/AStarDev.ServiceDefaults/AStarDev.ServiceDefaults.csproj" />
+  <Project Path="src/AStarDev.Web/AStarDev.Web.csproj" />
+</Solution>
