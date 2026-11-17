@@ -19,7 +19,7 @@
     <Project Path="tests/Fab4Kids.Web.TestsIntegration/Fab4Kids.Web.TestsIntegration.csproj" />
     <Project Path="tests/Fab4Kids.Web.TestsUnit/Fab4Kids.Web.TestsUnit.csproj" />
   </Folder>
-  <Project Path="src/AStarDev.AppHost/AStarDev.AppHost.csproj" />
-  <Project Path="src/AStarDev.ServiceDefaults/AStarDev.ServiceDefaults.csproj" />
+  <Project Path="src/Aspire/AStarDev.AppHost/AStarDev.AppHost.csproj" />
+  <Project Path="src/Aspire/AStarDev.ServiceDefaults/AStarDev.ServiceDefaults.csproj" />
   <Project Path="src/AStarDev.Web/AStarDev.Web.csproj" />
 </Solution>

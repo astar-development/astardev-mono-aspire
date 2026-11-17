@@ -5,14 +5,14 @@
             "name": "C#: AStarDev.AppHost [https]",
             "type": "dotnet",
             "request": "launch",
-            "projectPath": "${workspaceFolder}/src/AStarDev.AppHost/AStarDev.AppHost.csproj",
+            "projectPath": "${workspaceFolder}/src/Aspire/AStarDev.AppHost/AStarDev.AppHost.csproj",
             "launchConfigurationId": "https"
         },
         {
             "name": "C#: AStarDev.AppHost [http]",
             "type": "dotnet",
             "request": "launch",
-            "projectPath": "${workspaceFolder}/src/AStarDev.AppHost/AStarDev.AppHost.csproj",
+            "projectPath": "${workspaceFolder}/src/Aspire/AStarDev.AppHost/AStarDev.AppHost.csproj",
             "launchConfigurationId": "http"
         },
     ]
