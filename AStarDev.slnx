@@ -1,4 +1,14 @@
 <Solution>
+  <Folder Name="/packages/">
+    <Project Path="packages/AStarDev.FunctionalParadigm/AStarDev.FunctionalParadigm.csproj" />
+    <Project Path="packages/AStarDev.FunctionalParadigm.TestsUnit/AStarDev.FunctionalParadigm.TestsUnit.csproj" />
+    <Project Path="packages/AStarDev.LoggingExtensions/AStarDev.LoggingExtensions.csproj" />
+    <Project Path="packages/AStarDev.LoggingExtensions.TestsUnit/AStarDev.LoggingExtensions.TestsUnit.csproj" />
+    <Project Path="packages/AStarDev.LoggingOTel/AStarDev.LoggingOTel.csproj" />
+    <Project Path="packages/AStarDev.LoggingOTel.TestsUnit/AStarDev.LoggingOTel.TestsUnit.csproj" />
+    <Project Path="packages/AStarDev.Utilities/AStarDev.Utilities.csproj" />
+    <Project Path="packages/AStarDev.Utilities.TestsUnit/AStarDev.Utilities.TestsUnit.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/AStarDev.ApiService.TestsIntegration/AStarDev.ApiService.TestsIntegration.csproj" />
     <Project Path="tests/AStarDev.Web.TestsIntegration/AStarDev.Web.TestsIntegration.csproj" />

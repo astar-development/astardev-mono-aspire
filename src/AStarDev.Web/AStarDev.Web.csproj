@@ -4,10 +4,20 @@
     <TargetFramework>net11.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Communication.Email" Version="1.1.0" />
+    <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
+    <PackageReference Include="Markdig" Version="1.6.0" />
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="5.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\AStarDev.ServiceDefaults\AStarDev.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\packages\AStarDev.FunctionalParadigm\AStarDev.FunctionalParadigm.csproj" />
+    <ProjectReference Include="..\..\packages\AStarDev.LoggingExtensions\AStarDev.LoggingExtensions.csproj" />
   </ItemGroup>
 
 </Project>
