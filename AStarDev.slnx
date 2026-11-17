@@ -11,15 +11,15 @@
   </Folder>
   <Folder Name="/src/" />
   <Folder Name="/src/Fab4Kids/">
-    <Project Path="src/Fab4Kids/Fab4Kids.Web.csproj" />
+    <Project Path="src/web/Fab4Kids/Fab4Kids.Web.csproj" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/AStarDev.Web.TestsIntegration/AStarDev.Web.TestsIntegration.csproj" />
-    <Project Path="tests/AStarDev.Web.TestsUnit/AStarDev.Web.TestsUnit.csproj" />
-    <Project Path="tests/Fab4Kids.Web.TestsIntegration/Fab4Kids.Web.TestsIntegration.csproj" />
-    <Project Path="tests/Fab4Kids.Web.TestsUnit/Fab4Kids.Web.TestsUnit.csproj" />
+    <Project Path="tests/web/AStarDev.Web.TestsIntegration/AStarDev.Web.TestsIntegration.csproj" />
+    <Project Path="tests/web/AStarDev.Web.TestsUnit/AStarDev.Web.TestsUnit.csproj" />
+    <Project Path="tests/web/Fab4Kids.Web.TestsIntegration/Fab4Kids.Web.TestsIntegration.csproj" />
+    <Project Path="tests/web/Fab4Kids.Web.TestsUnit/Fab4Kids.Web.TestsUnit.csproj" />
   </Folder>
   <Project Path="src/Aspire/AStarDev.AppHost/AStarDev.AppHost.csproj" />
   <Project Path="src/Aspire/AStarDev.ServiceDefaults/AStarDev.ServiceDefaults.csproj" />
-  <Project Path="src/AStarDev.Web/AStarDev.Web.csproj" />
+  <Project Path="src/web/AStarDev.Web/AStarDev.Web.csproj" />
 </Solution>

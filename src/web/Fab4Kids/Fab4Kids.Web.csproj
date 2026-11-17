@@ -17,10 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\packages\AStarDev.FunctionalParadigm\AStarDev.FunctionalParadigm.csproj" />
-    <ProjectReference Include="..\..\packages\AStarDev.LoggingExtensions\AStarDev.LoggingExtensions.csproj" />
-    <ProjectReference Include="..\..\packages\AStarDev.Utilities\AStarDev.Utilities.csproj" />
-    <ProjectReference Include="..\Aspire\AStarDev.ServiceDefaults\AStarDev.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\..\packages\AStarDev.FunctionalParadigm\AStarDev.FunctionalParadigm.csproj" />
+    <ProjectReference Include="..\..\..\packages\AStarDev.LoggingExtensions\AStarDev.LoggingExtensions.csproj" />
+    <ProjectReference Include="..\..\..\packages\AStarDev.Utilities\AStarDev.Utilities.csproj" />
+    <ProjectReference Include="..\..\Aspire\AStarDev.ServiceDefaults\AStarDev.ServiceDefaults.csproj" />
   </ItemGroup>
 
   <ItemGroup>
