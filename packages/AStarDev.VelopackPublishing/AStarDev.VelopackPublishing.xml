@@ -1,0 +1,323 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AStarDev.VelopackPublishing</name>
+    </assembly>
+    <members>
+        <member name="T:AStar.Dev.Velopack.Publishing.ImmediateUpdateApplyGate">
+            <summary>The gate for apps that can restart at any time: it never waits (#1412). It is the default, so apps that do not register their own gate behave as before.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.ImmediateUpdateApplyGate.WaitUntilSafeAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.IUpdateApplyGate">
+            <summary>Lets an app hold an update back until it is safe to restart (#1412). A sync client, for example, must not restart in the middle of a sync.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.IUpdateApplyGate.WaitUntilSafeAsync(System.Threading.CancellationToken)">
+            <summary>Waits until the app can restart, and keeps it safe until the permit is disposed. The update is applied while the permit is held; if applying fails the permit is disposed so the app carries on.</summary>
+            <param name="cancellationToken">Stops waiting.</param>
+            <returns>A permit that holds the app in its safe state.</returns>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.IUpdateDeferralStore">
+            <summary>Remembers that the user deferred an update, so the choice survives a restart (#1412).</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.IUpdateDeferralStore.Load">
+            <summary>Loads what the user deferred. Nothing saved, or a file that cannot be read, means nothing is deferred.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.IUpdateDeferralStore.Save(AStar.Dev.Velopack.Publishing.UpdateDeferral)">
+            <summary>Saves the deferral. <see cref="T:AStar.Dev.Velopack.Publishing.NotDeferred"/> removes it. A failure to save is logged, never thrown: the worst outcome is being asked again.</summary>
+            <param name="deferral">What to remember.</param>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.IUpdatePolicy">
+            <summary>Decides what to do about an update check result and the user's earlier choices (#1412). It is pure: the same inputs always give the same action.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.IUpdatePolicy.Decide(AStar.Dev.Velopack.Publishing.UpdateCheckResult,AStar.Dev.Velopack.Publishing.UpdateDeferral,System.DateTimeOffset)">
+            <summary>Decides. A found update with no deferral prompts. A deferred update prompts again after one hour and is forced after seven days. A newer version than the deferred one starts again. Nothing is done when there is no update.</summary>
+            <param name="result">What the update check found.</param>
+            <param name="deferral">What the user did about the update that was found before.</param>
+            <param name="now">The current time.</param>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.IVelopackUpdateService">
+            <summary>Abstracts Velopack update checking/downloading/applying so consumers stay testable.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.IVelopackUpdateService.IsInstalled">
+            <summary>Gets a value indicating whether the app is running as a Velopack-installed instance.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.IVelopackUpdateService.Channel">
+            <summary>Gets the explicit Velopack channel this instance checks for updates, e.g. "clock-linux".</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.IVelopackUpdateService.CheckForUpdatesAsync(System.Threading.CancellationToken)">
+            <summary>
+            Checks the configured GitHub releases feed for a newer version.
+            Returns <c>null</c> if no update is available, the app is not installed (e.g. running unpackaged), or the check fails.
+            </summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.IVelopackUpdateService.CheckForUpdatesWithResultAsync(System.Threading.CancellationToken)">
+            <summary>Checks the configured GitHub releases feed and reports why no update was found, rather than returning <c>null</c>.</summary>
+            <param name="cancellationToken">A token to cancel the check.</param>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.IVelopackUpdateService.DownloadUpdatesAsync(Velopack.UpdateInfo,System.Action{System.Int32},System.Threading.CancellationToken)">
+            <summary>Downloads the update described by <paramref name="updateInfo"/> to the local packages directory.</summary>
+            <param name="updateInfo">The update to download, as returned by <see cref="M:AStar.Dev.Velopack.Publishing.IVelopackUpdateService.CheckForUpdatesAsync(System.Threading.CancellationToken)"/>.</param>
+            <param name="progress">An optional callback invoked with the download progress, from 0-100.</param>
+            <param name="cancellationToken">A token to cancel the download.</param>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.IVelopackUpdateService.ApplyUpdatesAndRestart(Velopack.UpdateInfo)">
+            <summary>Exits the app, applies the downloaded update, and restarts it.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.JsonUpdateDeferralStore">
+            <summary>Keeps the update deferral in a small JSON file.</summary>
+            <param name="deferralFile">The JSON file holding the deferral.</param>
+            <param name="logger">Reports a deferral that cannot be read or saved.</param>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.JsonUpdateDeferralStore.#ctor(System.IO.Abstractions.IFileInfo,Microsoft.Extensions.Logging.ILogger{AStar.Dev.Velopack.Publishing.JsonUpdateDeferralStore})">
+            <summary>Keeps the update deferral in a small JSON file.</summary>
+            <param name="deferralFile">The JSON file holding the deferral.</param>
+            <param name="logger">Reports a deferral that cannot be read or saved.</param>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.JsonUpdateDeferralStore.Load">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.JsonUpdateDeferralStore.Save(AStar.Dev.Velopack.Publishing.UpdateDeferral)">
+            <inheritdoc />
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.UpdateAction">
+            <summary>What to do about an update check result (#1412).</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.NoAction">
+            <summary>Nothing: there is no update, or the build cannot update.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.PromptUser">
+            <summary>Ask the user now: install or defer.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.RemindLater">
+            <summary>The user deferred recently: ask again at <see cref="P:AStar.Dev.Velopack.Publishing.RemindLater.At"/>.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.RemindLater.At">
+            <summary>When to ask again.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.ForceAfterWarning">
+            <summary>The user deferred for too long: warn, then install.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.UpdateActionFactory">
+            <summary>Creates <see cref="T:AStar.Dev.Velopack.Publishing.UpdateAction"/> cases.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.UpdateActionFactory.CreateNone">
+            <summary>Creates the <see cref="T:AStar.Dev.Velopack.Publishing.NoAction"/> case.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.UpdateActionFactory.CreatePrompt">
+            <summary>Creates the <see cref="T:AStar.Dev.Velopack.Publishing.PromptUser"/> case.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.UpdateActionFactory.CreateRemindLater(System.DateTimeOffset)">
+            <summary>Creates the <see cref="T:AStar.Dev.Velopack.Publishing.RemindLater"/> case.</summary>
+            <param name="at">When to ask again.</param>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.UpdateActionFactory.CreateForceAfterWarning">
+            <summary>Creates the <see cref="T:AStar.Dev.Velopack.Publishing.ForceAfterWarning"/> case.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.UpdateCheckResult">
+            <summary>The outcome of an update check.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.UpdateFound">
+            <summary>A newer version is available.</summary>
+            <param name="Info">The update that was found.</param>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.UpdateFound.#ctor(Velopack.UpdateInfo)">
+            <summary>A newer version is available.</summary>
+            <param name="Info">The update that was found.</param>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.UpdateFound.Info">
+            <summary>The update that was found.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.UpToDate">
+            <summary>The installed version is the latest.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.NotInstalled">
+            <summary>The app is not running as a Velopack-installed instance, so it cannot be updated.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.CheckFailed">
+            <summary>The check could not be completed.</summary>
+            <param name="Reason">Why the check failed.</param>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.CheckFailed.#ctor(System.String)">
+            <summary>The check could not be completed.</summary>
+            <param name="Reason">Why the check failed.</param>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.CheckFailed.Reason">
+            <summary>Why the check failed.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.UpdateCheckResultFactory">
+            <summary>Creates <see cref="T:AStar.Dev.Velopack.Publishing.UpdateCheckResult"/> cases.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.UpdateCheckResultFactory.CreateFound(Velopack.UpdateInfo)">
+            <summary>Creates a result for a found update. A missing <paramref name="updateInfo"/> yields <see cref="T:AStar.Dev.Velopack.Publishing.CheckFailed"/>.</summary>
+            <param name="updateInfo">The update that was found.</param>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.UpdateCheckResultFactory.CreateUpToDate">
+            <summary>Creates the up-to-date result.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.UpdateCheckResultFactory.CreateNotInstalled">
+            <summary>Creates the not-installed result.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.UpdateCheckResultFactory.CreateFailed(System.String)">
+            <summary>Creates a failed result. A blank <paramref name="reason"/> is replaced with a default.</summary>
+            <param name="reason">Why the check failed.</param>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.UpdateDeferral">
+            <summary>Whether the user deferred the update that is waiting (#1412). It is what the update policy needs to know about the user's earlier choices.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.NotDeferred">
+            <summary>The user has not deferred this update.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.DeferredSince">
+            <summary>The user chose to install later.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.DeferredSince.Version">
+            <summary>The version that was deferred. A newer version starts again.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.DeferredSince.FirstDeferredAt">
+            <summary>When the user first deferred this version.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.DeferredSince.LastPromptedAt">
+            <summary>When the user was last asked.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.UpdateDeferralFactory">
+            <summary>Creates <see cref="T:AStar.Dev.Velopack.Publishing.UpdateDeferral"/> cases.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.UpdateDeferralFactory.CreateNotDeferred">
+            <summary>Creates the <see cref="T:AStar.Dev.Velopack.Publishing.NotDeferred"/> case.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.UpdateDeferralFactory.CreateDeferredSince(System.String,System.DateTimeOffset,System.DateTimeOffset)">
+            <summary>Creates the <see cref="T:AStar.Dev.Velopack.Publishing.DeferredSince"/> case. A blank version becomes empty text, so it never matches a real version.</summary>
+            <param name="version">The version that was deferred.</param>
+            <param name="firstDeferredAt">When the user first deferred it.</param>
+            <param name="lastPromptedAt">When the user was last asked. It cannot be before the first deferral.</param>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.UpdateDeferralFactory.CreateAfterDeferring(AStar.Dev.Velopack.Publishing.UpdateDeferral,System.String,System.DateTimeOffset)">
+            <summary>Creates the deferral to keep after the user deferred <paramref name="version"/> at <paramref name="now"/>. Deferring the same version again keeps the first time, so the seven days run from the first deferral; a different version starts again.</summary>
+            <param name="previous">What was deferred before.</param>
+            <param name="version">The version the user has just deferred.</param>
+            <param name="now">When the user deferred it.</param>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.UpdateDeferralJsonContext.StoredUpdateDeferral">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.UpdateDeferralJsonContext.DateTimeOffset">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.UpdateDeferralJsonContext.String">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.UpdateDeferralJsonContext.Default">
+            <summary>
+            The default <see cref="T:System.Text.Json.Serialization.JsonSerializerContext"/> associated with a default <see cref="T:System.Text.Json.JsonSerializerOptions"/> instance.
+            </summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.UpdateDeferralJsonContext.GeneratedSerializerOptions">
+            <summary>
+            The source-generated options associated with this context.
+            </summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.UpdateDeferralJsonContext.#ctor">
+            <inheritdoc/>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.UpdateDeferralJsonContext.#ctor(System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.UpdateDeferralJsonContext.GetTypeInfo(System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.UpdateDeferralServiceCollectionExtensions">
+            <summary>Registers the update deferral store.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.UpdateDeferralServiceCollectionExtensions.AddVelopackUpdateDeferral(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Func{System.IServiceProvider,System.IO.Abstractions.IFileInfo})">
+            <summary>Registers the <see cref="T:AStar.Dev.Velopack.Publishing.IUpdateDeferralStore"/> that keeps the deferral in a JSON file.</summary>
+            <param name="services">The service collection to register the store with.</param>
+            <param name="deferralFile">Returns the JSON file the deferral is kept in.</param>
+            <returns>The <paramref name="services"/> collection to allow further chaining.</returns>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.UpdatePolicy">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.UpdatePolicy.Decide(AStar.Dev.Velopack.Publishing.UpdateCheckResult,AStar.Dev.Velopack.Publishing.UpdateDeferral,System.DateTimeOffset)">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.VelopackUpdateLog.UpdateCheckCompleted(Microsoft.Extensions.Logging.ILogger,System.Object,System.Object)">
+            <summary>
+            <para><b>Message:</b> Update check completed. Current version: {CurrentVersion}; available update: {TargetVersion}.</para>
+            <para><b>Level:</b> Information</para>
+            </summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.VelopackUpdateLog.DeferralUnreadable(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> Could not read the update deferral ({ErrorType}); treating the update as not deferred.</para>
+            <para><b>Level:</b> Warning</para>
+            </summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.VelopackUpdateLog.DeferralNotSaved(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> Could not save the update deferral ({ErrorType}).</para>
+            <para><b>Level:</b> Warning</para>
+            </summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.VelopackUpdateService">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.VelopackUpdateService.#ctor(Microsoft.Extensions.Options.IOptions{AStar.Dev.Velopack.Publishing.VelopackUpdateSettings},Microsoft.Extensions.Logging.ILogger{AStar.Dev.Velopack.Publishing.VelopackUpdateService})">
+            <summary>Creates the update service from the bound <see cref="T:AStar.Dev.Velopack.Publishing.VelopackUpdateSettings"/>.</summary>
+            <param name="settings">The GitHub repository releases are checked against, and the app-specific channel prefix.</param>
+            <param name="logger">The logger used to record check/download/apply outcomes.</param>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.VelopackUpdateService.IsInstalled">
+            <inheritdoc />
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.VelopackUpdateService.Channel">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.VelopackUpdateService.CheckForUpdatesAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.VelopackUpdateService.CheckForUpdatesWithResultAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.VelopackUpdateService.DownloadUpdatesAsync(Velopack.UpdateInfo,System.Action{System.Int32},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.VelopackUpdateService.ApplyUpdatesAndRestart(Velopack.UpdateInfo)">
+            <inheritdoc />
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.VelopackUpdateServiceCollectionExtensions">
+            <summary>Registers the Velopack update-checking service and its configuration binding with the dependency injection container.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.VelopackUpdateServiceCollectionExtensions.AddVelopackUpdates(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>Binds <see cref="T:AStar.Dev.Velopack.Publishing.VelopackUpdateSettings"/> from <paramref name="configuration"/> and registers <see cref="T:AStar.Dev.Velopack.Publishing.IVelopackUpdateService"/>.</summary>
+            <param name="services">The service collection to register the update services with.</param>
+            <param name="configuration">The application configuration used to bind <see cref="T:AStar.Dev.Velopack.Publishing.VelopackUpdateSettings"/>.</param>
+            <returns>The <paramref name="services"/> collection to allow further chaining.</returns>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.VelopackUpdateSettings">
+            <summary>Configuration for checking application updates published as GitHub Releases via Velopack.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.VelopackUpdateSettings.SectionName">
+            <summary>The configuration section name this record binds to.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.VelopackUpdateSettings.GithubRepositoryUrl">
+            <summary>The GitHub repository releases are published to, e.g. https://github.com/owner/repo.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.VelopackUpdateSettings.ChannelPrefix">
+            <summary>
+            The app-specific prefix for the Velopack update channel, e.g. "clock" or "onedrive-sync".
+            Combined with the current platform (linux/win/osx) to form the explicit channel checked
+            against GitHub Releases. Required because this mono-repo hosts every desktop app's releases
+            in one GitHub repository, and Velopack's channel lookup is scoped per-repo, not per-packId -
+            apps sharing a bare channel name (e.g. "linux") can pick up each other's releases.
+            </summary>
+        </member>
+    </members>
+</doc>

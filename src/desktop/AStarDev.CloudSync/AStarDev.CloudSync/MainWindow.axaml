@@ -1,0 +1,108 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:accounts="using:AStarDev.CloudSync.Accounts"
+        xmlns:conflicts="using:AStarDev.CloudSync.Conflicts"
+        xmlns:folderSelection="using:AStarDev.CloudSync.FolderSelection"
+        xmlns:layouts="using:AStarDev.CloudSync.Layouts"
+        xmlns:syncRestart="using:AStarDev.CloudSync.SyncRestart"
+        xmlns:tray="using:AStarDev.CloudSync.Tray"
+        xmlns:vm="using:AStarDev.CloudSync.ViewModels"
+        xmlns:vmLayouts="using:AStarDev.CloudSync.ViewModels.Layouts"
+        x:Class="AStarDev.CloudSync.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="avares://AStarDev.CloudSync/Assets/astar.ico"
+        Width="1280" Height="800"
+        MinWidth="960" MinHeight="600"
+        Title="{Binding Title}">
+    <Grid RowDefinitions="Auto,*"
+          HorizontalAlignment="Stretch"
+          VerticalAlignment="Stretch">
+        <StackPanel Grid.Row="0">
+            <Border Background="{DynamicResource CloudSyncWarnSoftBrush}"
+                    BorderBrush="{DynamicResource CloudSyncWarnBrush}"
+                    BorderThickness="0,0,0,1"
+                    Padding="16,8"
+                    IsVisible="{Binding DatabaseHealth.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                <TextBlock Text="{Binding DatabaseHealth.Text}"
+                           Foreground="{DynamicResource CloudSyncTextPrimaryBrush}"
+                           TextWrapping="Wrap" />
+            </Border>
+            <Border Background="{DynamicResource CloudSyncWarnSoftBrush}"
+                    BorderBrush="{DynamicResource CloudSyncWarnBrush}"
+                    BorderThickness="0,0,0,1"
+                    Padding="16,8"
+                    IsVisible="{Binding LayoutA.Overview.LoadErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                <TextBlock Text="{Binding LayoutA.Overview.LoadErrorText}"
+                           Foreground="{DynamicResource CloudSyncTextPrimaryBrush}"
+                           TextWrapping="Wrap" />
+            </Border>
+            <Border Padding="16,6"
+                    HorizontalAlignment="Stretch"
+                    BorderBrush="{DynamicResource CloudSyncBorderBrush}"
+                    BorderThickness="0,0,0,1"
+                    IsEnabled="{Binding !IsDialogOpen}">
+                <Button HorizontalAlignment="Right"
+                        Classes="secondary"
+                        Content="{Binding ConflictList.ReviewText}"
+                        Command="{Binding ConflictList.OpenCommand}"
+                        AutomationProperties.Name="{Binding ConflictList.ReviewText}" />
+            </Border>
+        </StackPanel>
+        <ContentControl x:Name="LayoutHost"
+                        Grid.Row="1"
+                        IsEnabled="{Binding !IsDialogOpen}"
+                        Content="{Binding CurrentLayout}"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch">
+            <ContentControl.DataTemplates>
+                <DataTemplate DataType="vmLayouts:LayoutAViewModel">
+                    <layouts:LayoutAView />
+                </DataTemplate>
+                <DataTemplate DataType="vmLayouts:LayoutBViewModel">
+                    <layouts:LayoutBView />
+                </DataTemplate>
+                <DataTemplate DataType="vmLayouts:LayoutCViewModel">
+                    <layouts:LayoutCView />
+                </DataTemplate>
+            </ContentControl.DataTemplates>
+        </ContentControl>
+        <Border Grid.Row="0"
+                Grid.RowSpan="2"
+                Background="{DynamicResource CloudSyncScrimBrush}"
+                IsVisible="{Binding AddAccount.IsOpen}">
+            <accounts:AddAccountView DataContext="{Binding AddAccount}" />
+        </Border>
+        <Border Grid.Row="0"
+                Grid.RowSpan="2"
+                Background="{DynamicResource CloudSyncScrimBrush}"
+                IsVisible="{Binding AccountDialog.IsOpen}">
+            <accounts:AccountDialogView DataContext="{Binding AccountDialog}" />
+        </Border>
+        <Border Grid.Row="0"
+                Grid.RowSpan="2"
+                Background="{DynamicResource CloudSyncScrimBrush}"
+                IsVisible="{Binding FolderSelection.IsOpen}">
+            <folderSelection:FolderSelectionView DataContext="{Binding FolderSelection}" />
+        </Border>
+        <Border Grid.Row="0"
+                Grid.RowSpan="2"
+                Background="{DynamicResource CloudSyncScrimBrush}"
+                IsVisible="{Binding ConflictList.IsOpen}">
+            <conflicts:ConflictListView DataContext="{Binding ConflictList}"
+                                        Margin="32"
+                                        MaxWidth="960" />
+        </Border>
+        <Border Grid.Row="0"
+                Grid.RowSpan="2"
+                Background="{DynamicResource CloudSyncScrimBrush}"
+                IsVisible="{Binding SyncRestart.IsOpen}">
+            <syncRestart:ConfirmSyncRestartView DataContext="{Binding SyncRestart}" />
+        </Border>
+        <Border Grid.Row="0"
+                Grid.RowSpan="2"
+                Background="{DynamicResource CloudSyncScrimBrush}"
+                IsVisible="{Binding ConfirmQuit.IsOpen}">
+            <tray:ConfirmQuitView DataContext="{Binding ConfirmQuit}" />
+        </Border>
+    </Grid>
+</Window>

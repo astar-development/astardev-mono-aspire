@@ -1,0 +1,34 @@
+
+namespace AStarDev.CloudSync.Sync;
+
+/// <summary>Creates <see cref="ActivityKind"/> cases.</summary>
+public static class ActivityKindFactory
+{
+    /// <summary>Creates a detecting-changes entry.</summary>
+    public static ActivityKind CreateDetectingChanges() => new ActivityKind.DetectingChanges();
+
+    /// <summary>Creates an uploaded entry. Negative values are normalised to zero.</summary>
+    public static ActivityKind CreateUploaded(int fileCount, long bytes) => new ActivityKind.Uploaded(Math.Max(fileCount, 0), Math.Max(bytes, 0));
+
+    /// <summary>Creates a downloaded entry. A negative count is normalised to zero.</summary>
+    public static ActivityKind CreateDownloaded(int fileCount) => new ActivityKind.Downloaded(Math.Max(fileCount, 0));
+
+    /// <summary>Creates a deleted entry. A negative count is normalised to zero.</summary>
+    public static ActivityKind CreateDeleted(int fileCount) => new ActivityKind.Deleted(Math.Max(fileCount, 0));
+
+    /// <summary>Creates a conflict entry. A missing file name is normalised to an empty string.</summary>
+    public static ActivityKind CreateConflictDetected(string fileName) => new ActivityKind.ConflictDetected(fileName ?? string.Empty);
+
+    /// <summary>Creates an authenticated entry.</summary>
+    public static ActivityKind CreateAuthenticated() => new ActivityKind.Authenticated();
+
+    /// <summary>Creates a nothing-changed entry.</summary>
+    public static ActivityKind CreateNothingChanged() => new ActivityKind.NothingChanged();
+
+    /// <summary>Creates a recovery-blocked entry.</summary>
+    /// <param name="blocker">What has to be fixed first.</param>
+    public static ActivityKind CreateRecoveryBlocked(RecoveryBlocker blocker) => new ActivityKind.RecoveryBlocked(blocker);
+
+    /// <summary>Creates an interrupted-sync entry.</summary>
+    public static ActivityKind CreateSyncInterrupted() => new ActivityKind.SyncInterrupted();
+}

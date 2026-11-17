@@ -1,0 +1,105 @@
+namespace AStarDev.CloudSync.Sync;
+
+/// <summary>What happened in an activity entry.</summary>
+public abstract record ActivityKind
+{
+    private ActivityKind()
+    {
+    }
+
+    /// <summary>Scanning the local folders for changes.</summary>
+    public sealed record DetectingChanges : ActivityKind
+    {
+        internal DetectingChanges()
+        {
+        }
+    }
+
+    /// <summary>Files were uploaded.</summary>
+    public sealed record Uploaded : ActivityKind
+    {
+        internal Uploaded(int fileCount, long bytes)
+        {
+            FileCount = fileCount;
+            Bytes = bytes;
+        }
+
+        /// <summary>The number of files uploaded.</summary>
+        public int FileCount { get; }
+
+        /// <summary>The number of bytes uploaded.</summary>
+        public long Bytes { get; }
+    }
+
+    /// <summary>Files were downloaded.</summary>
+    public sealed record Downloaded : ActivityKind
+    {
+        internal Downloaded(int fileCount)
+        {
+            FileCount = fileCount;
+        }
+
+        /// <summary>The number of files downloaded.</summary>
+        public int FileCount { get; }
+    }
+
+    /// <summary>Files were deleted, locally or remotely.</summary>
+    public sealed record Deleted : ActivityKind
+    {
+        internal Deleted(int fileCount)
+        {
+            FileCount = fileCount;
+        }
+
+        /// <summary>The number of files deleted.</summary>
+        public int FileCount { get; }
+    }
+
+    /// <summary>A file changed on both sides.</summary>
+    public sealed record ConflictDetected : ActivityKind
+    {
+        internal ConflictDetected(string fileName)
+        {
+            FileName = fileName;
+        }
+
+        /// <summary>The name of the file in conflict.</summary>
+        public string FileName { get; }
+    }
+
+    /// <summary>The account signed in.</summary>
+    public sealed record Authenticated : ActivityKind
+    {
+        internal Authenticated()
+        {
+        }
+    }
+
+    /// <summary>A sync run finished and found nothing to upload, download or delete.</summary>
+    public sealed record NothingChanged : ActivityKind
+    {
+        internal NothingChanged()
+        {
+        }
+    }
+
+    /// <summary>The interrupted sync could not be resumed until the user fixes <see cref="Blocker"/> (#1612).</summary>
+    public sealed record RecoveryBlocked : ActivityKind
+    {
+        internal RecoveryBlocked(RecoveryBlocker blocker)
+        {
+            Blocker = blocker;
+        }
+
+        /// <summary>What has to be fixed first.</summary>
+        public RecoveryBlocker Blocker { get; }
+    }
+
+    /// <summary>The last sync was interrupted and a new one starts (#1610).</summary>
+    public sealed record SyncInterrupted : ActivityKind
+    {
+        internal SyncInterrupted()
+        {
+        }
+    }
+}

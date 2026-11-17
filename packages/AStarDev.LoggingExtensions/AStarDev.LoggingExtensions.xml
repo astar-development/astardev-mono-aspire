@@ -1,0 +1,374 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AStarDev.LoggingExtensions</name>
+    </assembly>
+    <members>
+        <member name="T:AStarDev.LoggingExtensions.ApplicationMessages">
+            <summary>Provides extension methods for logging common application lifecycle events, such as starting up and shutting down, with consistent formatting and event IDs.</summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.ApplicationMessages.Starting(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> {ApplicationName} starting up.</para>
+            <para><b>Level:</b> Information</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.ApplicationMessages.Stopping(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> {ApplicationName} stopping.</para>
+            <para><b>Level:</b> Information</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.ApplicationMessages.Stopping(Microsoft.Extensions.Logging.ILogger,System.String,System.String)">
+            <summary>
+            <para><b>Message:</b> {ApplicationName} stopping. Final memory usage: {MemoryUsage} MB.</para>
+            <para><b>Level:</b> Information</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.ApplicationMessages.StartupSuccessful(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> {ApplicationName} started successfully.</para>
+            <para><b>Level:</b> Information</para>
+            </summary>
+        </member>
+        <member name="T:AStarDev.LoggingExtensions.AStarEventIds">
+            <summary>
+                The <see cref="T:AStarDev.LoggingExtensions.AStarEventIds" /> class contains the defined <see cref="T:Microsoft.Extensions.Logging.EventId" /> events available for logging
+                Stand-alone <see cref="T:Microsoft.Extensions.Logging.EventId" /> events can be defined but care should be taken to avoid reusing the values used here
+            </summary>
+        </member>
+        <member name="P:AStarDev.LoggingExtensions.AStarEventIds.PageView">
+            <summary>Gets the <see cref="T:Microsoft.Extensions.Logging.EventId" /> preconfigured for logging a page view</summary>
+        </member>
+        <member name="T:AStarDev.LoggingExtensions.AStarLogger`1">
+            <summary>
+                Provides an implementation of <see cref="T:AStarDev.LoggingExtensions.ILoggerAstar`1" /> that integrates application telemetry tracking
+                with structured logging for enhanced observability in A* applications.
+            </summary>
+            <typeparam name="TCategoryName">The category name for the logger, typically derived from the type being logged.</typeparam>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.AStarLogger`1.#ctor(Microsoft.Extensions.Logging.ILogger{`0})">
+            <summary>
+                Provides an implementation of <see cref="T:AStarDev.LoggingExtensions.ILoggerAstar`1" /> that integrates application telemetry tracking
+                with structured logging for enhanced observability in A* applications.
+            </summary>
+            <typeparam name="TCategoryName">The category name for the logger, typically derived from the type being logged.</typeparam>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.AStarLogger`1.LogPageView(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.AStarLogger`1.BeginScope``1(``0)">
+            <inheritdoc />
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.AStarLogger`1.IsEnabled(Microsoft.Extensions.Logging.LogLevel)">
+            <inheritdoc />
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.AStarLogger`1.Log``1(Microsoft.Extensions.Logging.LogLevel,Microsoft.Extensions.Logging.EventId,``0,System.Exception,System.Func{``0,System.Exception,System.String})">
+            <inheritdoc />
+        </member>
+        <member name="T:AStarDev.LoggingExtensions.Configuration">
+            <summary>Provides configuration settings for the logging extensions.</summary>
+        </member>
+        <member name="P:AStarDev.LoggingExtensions.Configuration.ExternalSettingsFile">
+            <summary>Gets the default filename for the external logging settings configuration file.</summary>
+            <remarks>
+                The value returned by <c>ExternalSettingsFile</c> is a constant string representing
+                the filename used to store external logging configuration settings. This property
+                ensures consistent reference to the expected configuration file across the application.
+            </remarks>
+        </member>
+        <member name="T:AStarDev.LoggingExtensions.ErrorTypes">
+            <summary>Produces low-cardinality <c>error.type</c> values for failed operations: the exception's full type name, <see cref="F:AStarDev.LoggingExtensions.ErrorTypes.Timeout" />, an HTTP status code or <see cref="F:AStarDev.LoggingExtensions.ErrorTypes.Other" />.</summary>
+        </member>
+        <member name="F:AStarDev.LoggingExtensions.ErrorTypes.Timeout">
+            <summary>The value for an operation that timed out.</summary>
+        </member>
+        <member name="F:AStarDev.LoggingExtensions.ErrorTypes.Other">
+            <summary>The semantic-convention fallback when no meaningful error type is known.</summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.ErrorTypes.From(System.Exception)">
+            <summary>
+                Describes a failure caused by an exception. A <see cref="T:System.TimeoutException" />, or an <see cref="T:System.OperationCanceledException" /> whose direct inner
+                exception is one (an HttpClient timeout), gives <see cref="F:AStarDev.LoggingExtensions.ErrorTypes.Timeout" />. Deeper nesting is not unwrapped. Any other exception gives its full
+                type name, and no exception gives <see cref="F:AStarDev.LoggingExtensions.ErrorTypes.Other" />.
+            </summary>
+            <param name="exception">The exception that caused the failure.</param>
+            <returns>The error type value.</returns>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.ErrorTypes.FromStatusCode(System.Int32)">
+            <summary>Describes a failure reported by an HTTP status code.</summary>
+            <param name="statusCode">The HTTP status code.</param>
+            <returns>The status code as invariant text, for example <c>503</c>.</returns>
+        </member>
+        <member name="T:AStarDev.LoggingExtensions.ExceptionExtensions">
+            <summary>Provides the PII-free exception detail that may be logged (LG-02): the type name, never the message, stack trace or instance.</summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.ExceptionExtensions.ErrorType(System.Exception)">
+            <summary>Gets the low-cardinality error type of the exception, its full type name, for use as a log attribute.</summary>
+            <param name="exception">The exception to describe.</param>
+            <returns>The full type name of the exception, for example <c>System.InvalidOperationException</c>.</returns>
+        </member>
+        <member name="T:AStarDev.LoggingExtensions.FileLoggerProvider">
+            <summary>
+            Writes log entries to a local text file, one file per day named <c>{prefix}-{yyyyMMdd}.log</c> in the supplied directory, which is created on first write.
+            A failure to write is swallowed: losing a log line must never take the application down.
+            </summary>
+            <param name="directory">The directory the log files are written to.</param>
+            <param name="fileNamePrefix">The start of every log file name.</param>
+            <param name="timeProvider">The clock used for the entry timestamps and to choose the day's file.</param>
+            <param name="maxFileBytes">The size a day's file may reach before entries go to a new file, <c>{prefix}-{yyyyMMdd}-{n}.log</c>. Zero or less means no limit.</param>
+            <param name="admit">Decides, from an entry's level and the values of its log scopes, whether it is written. When it is <see langword="null"/> every entry is written.</param>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.FileLoggerProvider.#ctor(System.String,System.String,System.TimeProvider,System.Func{Microsoft.Extensions.Logging.LogLevel,System.Collections.Generic.IReadOnlyDictionary{System.String,System.Object},System.Boolean},System.Int64)">
+            <summary>
+            Writes log entries to a local text file, one file per day named <c>{prefix}-{yyyyMMdd}.log</c> in the supplied directory, which is created on first write.
+            A failure to write is swallowed: losing a log line must never take the application down.
+            </summary>
+            <param name="directory">The directory the log files are written to.</param>
+            <param name="fileNamePrefix">The start of every log file name.</param>
+            <param name="timeProvider">The clock used for the entry timestamps and to choose the day's file.</param>
+            <param name="maxFileBytes">The size a day's file may reach before entries go to a new file, <c>{prefix}-{yyyyMMdd}-{n}.log</c>. Zero or less means no limit.</param>
+            <param name="admit">Decides, from an entry's level and the values of its log scopes, whether it is written. When it is <see langword="null"/> every entry is written.</param>
+        </member>
+        <member name="F:AStarDev.LoggingExtensions.FileLoggerProvider.AccountIdHashKey">
+            <summary>The log scope key whose string value, the hashed account id, is written into the line so the log viewer can filter by account (#1411). No other scope value is ever written.</summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.FileLoggerProvider.FilePathFor(System.DateTimeOffset)">
+            <summary>Gets the path of the log file that entries written at <paramref name="moment"/> go to.</summary>
+            <param name="moment">The time of the entry.</param>
+            <returns>The full path of that day's log file.</returns>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.FileLoggerProvider.SetScopeProvider(Microsoft.Extensions.Logging.IExternalScopeProvider)">
+            <inheritdoc/>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.FileLoggerProvider.CreateLogger(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.FileLoggerProvider.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="T:AStarDev.LoggingExtensions.FileLoggingBuilderExtensions">
+            <summary>Registers the <see cref="T:AStarDev.LoggingExtensions.FileLoggerProvider"/> with the logging builder.</summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.FileLoggingBuilderExtensions.AddFileLogging(Microsoft.Extensions.Logging.ILoggingBuilder,System.String,System.String)">
+            <summary>Adds a provider that writes the log to a daily local file.</summary>
+            <param name="loggingBuilder">The logging builder to add the provider to.</param>
+            <param name="directory">The directory the log files are written to.</param>
+            <param name="fileNamePrefix">The start of every log file name.</param>
+            <returns>The original instance of <see cref="T:Microsoft.Extensions.Logging.ILoggingBuilder" /> for further method chaining.</returns>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.FileLoggingBuilderExtensions.AddFileLogging(Microsoft.Extensions.Logging.ILoggingBuilder,System.String,System.String,System.Func{Microsoft.Extensions.Logging.LogLevel,System.Collections.Generic.IReadOnlyDictionary{System.String,System.Object},System.Boolean})">
+            <summary>Adds a provider that writes the entries <paramref name="admit"/> allows to a daily local file.</summary>
+            <param name="loggingBuilder">The logging builder to add the provider to.</param>
+            <param name="directory">The directory the log files are written to.</param>
+            <param name="fileNamePrefix">The start of every log file name.</param>
+            <param name="admit">Decides, from an entry's level and the values of its log scopes, whether it is written; <see langword="null"/> writes every entry.</param>
+            <returns>The original instance of <see cref="T:Microsoft.Extensions.Logging.ILoggingBuilder" /> for further method chaining.</returns>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.FileLoggingBuilderExtensions.AddFileLogging(Microsoft.Extensions.Logging.ILoggingBuilder,System.String,System.String,System.Func{Microsoft.Extensions.Logging.LogLevel,System.Collections.Generic.IReadOnlyDictionary{System.String,System.Object},System.Boolean},System.Int64)">
+            <summary>Adds a provider that writes the entries <paramref name="admit"/> allows to a daily local file, starting a new file when a day's file reaches <paramref name="maxFileBytes"/>.</summary>
+            <param name="loggingBuilder">The logging builder to add the provider to.</param>
+            <param name="directory">The directory the log files are written to.</param>
+            <param name="fileNamePrefix">The start of every log file name.</param>
+            <param name="admit">Decides, from an entry's level and the values of its log scopes, whether it is written; <see langword="null"/> writes every entry.</param>
+            <param name="maxFileBytes">The size a file may reach; zero or less means no limit.</param>
+            <returns>The original instance of <see cref="T:Microsoft.Extensions.Logging.ILoggingBuilder" /> for further method chaining.</returns>
+        </member>
+        <member name="T:AStarDev.LoggingExtensions.ILoggerAstar`1">
+            <summary>Defines an interface for a logging mechanism that extends the basic ILogger functionalities by adding support for logging specific page view events.</summary>
+            <typeparam name="T">The type representing the category name for the logger.</typeparam>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.ILoggerAstar`1.LogPageView(System.String)">
+            <summary>Logs a page view event with the specified page name.</summary>
+            <param name="pageName">The name of the page being viewed.</param>
+        </member>
+        <member name="T:AStarDev.LoggingExtensions.ITelemetryClient">
+            <summary>Defines the contract for telemetry client implementations used to track and log telemetry data.</summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.ITelemetryClient.TrackPageView(System.String)">
+            <summary>Tracks a page view with the specified name.</summary>
+            <param name="name">The name of the page being viewed.</param>
+        </member>
+        <member name="T:AStarDev.LoggingExtensions.LoggingExtensions">
+            <summary>
+                The <see cref="T:AStarDev.LoggingExtensions.LoggingExtensions" /> class contains extension methods for configuring OpenTelemetry logging,
+                tracing, and metrics, exported to Azure Monitor / Application Insights.
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LoggingExtensions.AddOTelLogging(Microsoft.AspNetCore.Builder.WebApplicationBuilder,System.String,System.String)">
+            <summary>
+                The <see cref="M:AStarDev.LoggingExtensions.LoggingExtensions.AddOTelLogging(Microsoft.AspNetCore.Builder.WebApplicationBuilder,System.String,System.String)" /> method will add OpenTelemetry logging,
+                tracing, and metrics, exported to Azure Monitor, to the logging providers.
+            </summary>
+            <param name="builder">The instance of <see cref="T:Microsoft.AspNetCore.Builder.WebApplicationBuilder" /> to which OpenTelemetry logging will be added.</param>
+            <param name="serviceName">The <c>service.name</c> on the OpenTelemetry resource (the cloud role name in Azure Monitor); when blank, the host application name is used.</param>
+            <param name="externalSettingsFile">The name (including extension) of an optional file containing additional configuration settings to layer onto the application configuration.</param>
+            <returns>The original instance of <see cref="T:Microsoft.AspNetCore.Builder.WebApplicationBuilder" /> for further method chaining.</returns>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LoggingExtensions.AddOTelLogging(Microsoft.Extensions.Hosting.HostApplicationBuilder,System.String,System.String)">
+            <summary>
+                The <see cref="M:AStarDev.LoggingExtensions.LoggingExtensions.AddOTelLogging(Microsoft.Extensions.Hosting.HostApplicationBuilder,System.String,System.String)" /> method will add OpenTelemetry logging,
+                tracing, and metrics, exported to Azure Monitor, to the logging providers.
+            </summary>
+            <param name="builder">The instance of <see cref="T:Microsoft.Extensions.Hosting.HostApplicationBuilder" /> to which OpenTelemetry logging will be added.</param>
+            <param name="serviceName">The <c>service.name</c> on the OpenTelemetry resource (the cloud role name in Azure Monitor); when blank, the host application name is used.</param>
+            <param name="externalSettingsFile">The name (including extension) of an optional file containing additional configuration settings to layer onto the application configuration.</param>
+            <returns>The original instance of <see cref="T:Microsoft.Extensions.Hosting.HostApplicationBuilder" /> for further method chaining.</returns>
+        </member>
+        <member name="T:AStarDev.LoggingExtensions.LogHash">
+            <summary>Creates short, stable hashes of personal values (paths, account ids) so log records can be correlated without exposing the value (LG-02).</summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogHash.Of(System.String)">
+            <summary>Returns the first 16 lower-case hex characters of the SHA-256 of <paramref name="value" />. The hash is case-sensitive and unsalted, so it pseudonymises but does not anonymise.</summary>
+            <param name="value">The personal value to hash.</param>
+            <returns>The 16-character hash.</returns>
+        </member>
+        <member name="T:AStarDev.LoggingExtensions.LogMessage">
+            <summary>Provides extension methods for logging common application events, such as startup, shutdown, and errors, using strongly-typed log messages with structured logging support.</summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.PageView(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> Page `{PageName}` viewed.</para>
+            <para><b>Level:</b> Information</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.Debug(Microsoft.Extensions.Logging.ILogger,System.String,System.String)">
+            <summary>
+            <para><b>Message:</b> {Location} has raised: `{Message}`.</para>
+            <para><b>Level:</b> Debug</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.Debug(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> Message: {Message}</para>
+            <para><b>Level:</b> Debug</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.Information(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> {Message}.</para>
+            <para><b>Level:</b> Information</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.Information(Microsoft.Extensions.Logging.ILogger,System.String,System.String)">
+            <summary>
+            <para><b>Message:</b> {Location} has raised: `{Message}`.</para>
+            <para><b>Level:</b> Information</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.Information(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String)">
+            <summary>
+            <para><b>Message:</b> {Location} has raised: `{Message}` with additional info: `{AdditionalInformation}`.</para>
+            <para><b>Level:</b> Information</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.Warning(Microsoft.Extensions.Logging.ILogger,System.String,System.String)">
+            <summary>
+            <para><b>Message:</b> {Location} has raised: `{Message}`.</para>
+            <para><b>Level:</b> Warning</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.Warning(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String)">
+            <summary>
+            <para><b>Message:</b> {Location} has raised: `{Message}` ({ErrorType}).</para>
+            <para><b>Level:</b> Warning</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.ExceptionCaught(Microsoft.Extensions.Logging.ILogger,System.String,System.String)">
+            <summary>
+            <para><b>Message:</b> {Location} encountered {ErrorType}</para>
+            <para><b>Level:</b> Error</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.BadRequest(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> Bad Request (400) for `{Path}`</para>
+            <para><b>Level:</b> Warning</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.Unauthorized(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> Unauthorized (401) for `{Path}`</para>
+            <para><b>Level:</b> Warning</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.Forbidden(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> Forbidden (403) for `{Path}`</para>
+            <para><b>Level:</b> Warning</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.NotFound(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> Not Found (404) for `{Path}`</para>
+            <para><b>Level:</b> Warning</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.Conflict(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> Conflict (409) for `{Path}`</para>
+            <para><b>Level:</b> Warning</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.UnprocessableEntity(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> Unprocessable Entity (422) for `{Path}`</para>
+            <para><b>Level:</b> Warning</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.TooManyRequests(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> Too Many Requests (429) for `{Path}`</para>
+            <para><b>Level:</b> Warning</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.Error(Microsoft.Extensions.Logging.ILogger,System.String,System.String)">
+            <summary>
+            <para><b>Message:</b> Error occurred : `{ErrorMessage}` ({ErrorType})</para>
+            <para><b>Level:</b> Error</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.Error(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> Error occurred : `{ErrorMessage}`</para>
+            <para><b>Level:</b> Error</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.InternalServerError(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> Internal Server Error (500) for `{Path}`</para>
+            <para><b>Level:</b> Error</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.BadGateway(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> Bad Gateway (502) for `{Path}`</para>
+            <para><b>Level:</b> Error</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.ServiceUnavailable(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> Service Unavailable (503) for `{Path}`</para>
+            <para><b>Level:</b> Error</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.GatewayTimeout(Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            <para><b>Message:</b> Gateway Timeout (504) for `{Path}`</para>
+            <para><b>Level:</b> Error</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.GraphApiThrottled(Microsoft.Extensions.Logging.ILogger,System.Int32,System.Int32,System.Double)">
+            <summary>
+            <para><b>Message:</b> Graph API throttled (attempt {Attempt}/{MaxRetries}), retrying after {DelaySeconds}s</para>
+            <para><b>Level:</b> Debug</para>
+            </summary>
+        </member>
+        <member name="M:AStarDev.LoggingExtensions.LogMessage.MemoryUsage(Microsoft.Extensions.Logging.ILogger,System.Double)">
+            <summary>
+            <para><b>Message:</b> Memory usage: {UsedMemoryMB:F2} MB</para>
+            <para><b>Level:</b> Debug</para>
+            </summary>
+        </member>
+    </members>
+</doc>

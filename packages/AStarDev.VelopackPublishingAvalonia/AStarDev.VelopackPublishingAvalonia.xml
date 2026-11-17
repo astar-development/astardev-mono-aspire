@@ -1,0 +1,325 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AStarDev.VelopackPublishingAvalonia</name>
+    </assembly>
+    <members>
+        <member name="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.AvaloniaUpdateAvailableDialogService">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.AvaloniaUpdateAvailableDialogService.ShowAsync(AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateAvailableDialogService">
+            <summary>Abstracts showing the update-available modal dialog to keep consumers testable without Avalonia infrastructure.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateAvailableDialogService.ShowAsync(AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel,System.Threading.CancellationToken)">
+            <summary>Shows the update-available dialog bound to <paramref name="viewModel"/> and waits until it closes.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateAvailableViewModelFactory">
+            <summary>Creates <see cref="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel"/> instances with their service dependencies resolved from the container.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateAvailableViewModelFactory.Create(Velopack.UpdateInfo)">
+            <summary>Creates a view model for the supplied discovered update.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateAvailableViewModelFactory.CreateForced(Velopack.UpdateInfo)">
+            <summary>Creates a view model for an update that has been deferred for too long: the dialog warns that it is about to be installed and cannot be deferred.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateDialogTextProvider">
+            <summary>Supplies the display text shown in the update-available dialog, decoupled from any specific localisation mechanism.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateDialogTextProvider.Title">
+            <summary>The dialog's title text.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateDialogTextProvider.ReleaseNotesLabel">
+            <summary>The label shown above the release notes section.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateDialogTextProvider.RestartNowLabel">
+            <summary>The label for the button that restarts the app to apply the update immediately.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateDialogTextProvider.LaterLabel">
+            <summary>The label for the button that dismisses the dialog without updating.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateDialogTextProvider.DownloadingLabel">
+            <summary>The label shown while the update is downloading.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateDialogTextProvider.GetMessage(System.String)">
+            <summary>Returns the body message describing the available update, formatted with <paramref name="version"/>.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateDialogTextProvider.GetForcedMessage(System.String)">
+            <summary>Returns the body message for an update that has been deferred too long and is about to be installed, formatted with <paramref name="version"/>.</summary>
+        </member>
+        <member name="E:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateDialogTextProvider.TextChanged">
+            <summary>Raised when the underlying text source changes (e.g. a culture switch) so an open dialog can refresh.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateNotificationService">
+            <summary>Checks for an application update and, if one is found, presents the user with the update-available dialog.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateNotificationService.CheckAndNotifyAsync(System.Threading.CancellationToken)">
+            <summary>Checks for updates and shows the dialog if one is available. No-op if none is found or the check fails.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateNotificationService.CheckNowAsync(System.Threading.CancellationToken)">
+            <summary>Checks for updates, shows the dialog if one is available, and returns the outcome so the caller can report it.</summary>
+            <param name="cancellationToken">A token to cancel the check.</param>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateScheduler">
+            <summary>Checks for updates at startup and then every hour, asking the user, reminding them and finally forcing the update, as the update policy decides (#1412).</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateScheduler.RunAsync(System.Threading.CancellationToken)">
+            <summary>Checks now and then on a timer until <paramref name="cancellationToken"/> is cancelled. A failed check or dialog is logged and the next check still happens. Stopping it never throws.</summary>
+            <param name="cancellationToken">Stops the schedule.</param>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.LocalizedUpdateDialogTextProvider">
+            <summary>Adapts <see cref="T:AStarDev.Localization.ILocalizationService"/> to the shared update dialog's <see cref="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateDialogTextProvider"/> contract.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.LocalizedUpdateDialogTextProvider.#ctor(AStarDev.Localization.ILocalizationService)">
+            <summary>Creates a provider that reads the <c>Update.*</c> keys from <paramref name="localization"/> and raises <see cref="E:AStar.Dev.Velopack.Publishing.Avalonia.Updates.LocalizedUpdateDialogTextProvider.TextChanged"/> when its culture changes.</summary>
+            <param name="localization">The localisation service supplying the dialog text.</param>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.LocalizedUpdateDialogTextProvider.Title">
+            <inheritdoc />
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.LocalizedUpdateDialogTextProvider.ReleaseNotesLabel">
+            <inheritdoc />
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.LocalizedUpdateDialogTextProvider.RestartNowLabel">
+            <inheritdoc />
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.LocalizedUpdateDialogTextProvider.LaterLabel">
+            <inheritdoc />
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.LocalizedUpdateDialogTextProvider.DownloadingLabel">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.LocalizedUpdateDialogTextProvider.GetMessage(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.LocalizedUpdateDialogTextProvider.GetForcedMessage(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="E:AStar.Dev.Velopack.Publishing.Avalonia.Updates.LocalizedUpdateDialogTextProvider.TextChanged">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.LocalizedUpdateDialogTextProvider.Dispose">
+            <summary>Unsubscribes from <see cref="E:AStarDev.Localization.ILocalizationService.CultureChanged"/>.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableView">
+            <summary>The shared update-available dialog window, showing title/version/release notes and a Restart-now/Later choice.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableView.#ctor">
+            <summary>Loads the window's XAML content.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableView.InitializeComponent(System.Boolean)">
+            <summary>
+            Wires up the controls and optionally loads XAML markup and attaches dev tools (if Avalonia.Diagnostics package is referenced).
+            </summary>
+            <param name="loadXaml">Should the XAML be loaded into the component.</param>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel">
+            <summary>Presents a discovered Velopack update, offering the user a choice to restart now or later.</summary>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.#ctor(Velopack.UpdateInfo,AStar.Dev.Velopack.Publishing.IVelopackUpdateService,AStar.Dev.Velopack.Publishing.IUpdateApplyGate,AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateDialogTextProvider,Microsoft.Extensions.Logging.ILogger{AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel})">
+            <summary>Creates the view model for the supplied discovered update.</summary>
+            <param name="updateInfo">The discovered update, as returned by <see cref="M:AStar.Dev.Velopack.Publishing.IVelopackUpdateService.CheckForUpdatesAsync(System.Threading.CancellationToken)"/>.</param>
+            <param name="updateCheckService">The service used to download and apply the update.</param>
+            <param name="applyGate">Holds the update back until the app can restart.</param>
+            <param name="textProvider">Supplies the dialog's display text.</param>
+            <param name="logger">The logger used to record download/apply failures.</param>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.#ctor(Velopack.UpdateInfo,AStar.Dev.Velopack.Publishing.IVelopackUpdateService,AStar.Dev.Velopack.Publishing.IUpdateApplyGate,AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateDialogTextProvider,Microsoft.Extensions.Logging.ILogger{AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel},AStar.Dev.Velopack.Publishing.UpdateAction)">
+            <summary>Creates the view model for the supplied discovered update, for the given reason it is being shown.</summary>
+            <param name="updateInfo">The discovered update, as returned by <see cref="M:AStar.Dev.Velopack.Publishing.IVelopackUpdateService.CheckForUpdatesAsync(System.Threading.CancellationToken)"/>.</param>
+            <param name="updateCheckService">The service used to download and apply the update.</param>
+            <param name="applyGate">Holds the update back until the app can restart.</param>
+            <param name="textProvider">Supplies the dialog's display text.</param>
+            <param name="logger">The logger used to record download/apply failures.</param>
+            <param name="action">Why the dialog is shown: <see cref="T:AStar.Dev.Velopack.Publishing.ForceAfterWarning"/> warns that the update is about to be installed and cannot be deferred; anything else is an ordinary prompt.</param>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.TargetVersion">
+            <inheritdoc/>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.ReleaseNotes">
+            <inheritdoc/>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.IsBusy">
+            <inheritdoc/>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.ErrorMessage">
+            <inheritdoc/>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.DownloadProgress">
+            <inheritdoc/>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.DownloadProgressText">
+            <inheritdoc/>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.Title">
+            <summary>The dialog's title text.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.Message">
+            <summary>The body message describing the available update.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.IsForced">
+            <summary>Whether the update has been deferred for too long and is about to be installed.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.CanDefer">
+            <summary>Whether the user may install later. A forced update cannot be deferred.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.Outcome">
+            <summary>How the user left the dialog. It is <see cref="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.Dismissed"/> until they choose.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.ReleaseNotesLabel">
+            <summary>The label shown above the release notes section.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.RestartNowLabel">
+            <summary>The label for the button that restarts the app to apply the update immediately.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.LaterLabel">
+            <summary>The label for the button that dismisses the dialog without updating.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.DownloadingLabel">
+            <summary>The label shown while the update is downloading.</summary>
+        </member>
+        <member name="E:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.CloseRequested">
+            <summary>Raised once the dialog should close, whether the user restarted or deferred.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.Dispose">
+            <summary>Unsubscribes from the <see cref="E:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateDialogTextProvider.TextChanged"/> event.</summary>
+        </member>
+        <member name="F:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.restartNowCommand">
+            <summary>The backing field for <see cref="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.RestartNowCommand"/>.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.RestartNowCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.RestartNowAsync"/>.</summary>
+        </member>
+        <member name="F:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.laterCommand">
+            <summary>The backing field for <see cref="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.LaterCommand"/>.</summary>
+        </member>
+        <member name="P:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.LaterCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel.Later"/>.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModelFactory">
+            <inheritdoc cref="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateAvailableViewModelFactory" />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModelFactory.#ctor(AStar.Dev.Velopack.Publishing.IVelopackUpdateService,AStar.Dev.Velopack.Publishing.IUpdateApplyGate,AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateDialogTextProvider,Microsoft.Extensions.Logging.ILogger{AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModel})">
+            <inheritdoc cref="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateAvailableViewModelFactory" />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModelFactory.Create(Velopack.UpdateInfo)">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateAvailableViewModelFactory.CreateForced(Velopack.UpdateInfo)">
+            <inheritdoc />
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateDialogOutcome">
+            <summary>How the user left the update dialog (#1412).</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.Install">
+            <summary>The user chose to restart now and install the update.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.Defer">
+            <summary>The user chose to install later.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.Dismissed">
+            <summary>The user closed the dialog without choosing, or nothing has been chosen yet.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateDialogOutcomeFactory">
+            <summary>Creates <see cref="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateDialogOutcome"/> cases.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateDialogOutcomeFactory.CreateInstall">
+            <summary>Creates the <see cref="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.Install"/> case.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateDialogOutcomeFactory.CreateDefer">
+            <summary>Creates the <see cref="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.Defer"/> case.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateDialogOutcomeFactory.CreateDismissed">
+            <summary>Creates the <see cref="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.Dismissed"/> case.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateNotificationService">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateNotificationService.#ctor(AStar.Dev.Velopack.Publishing.IVelopackUpdateService,AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateAvailableViewModelFactory,AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateAvailableDialogService)">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateNotificationService.CheckAndNotifyAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateNotificationService.CheckNowAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateNotificationServiceCollectionExtensions">
+            <summary>Registers the shared update-available dialog service, view-model factory, and notification service.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateNotificationServiceCollectionExtensions.AddVelopackUpdateNotifications(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>Registers the shared update-available dialog service, view-model factory, and notification service. Callers must separately register an <see cref="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateDialogTextProvider"/>.</summary>
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateNotificationServiceCollectionExtensions.AddVelopackUpdateScheduling(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>Registers the <see cref="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateScheduler"/>, which checks at startup and then hourly. The app must also register an <see cref="T:AStar.Dev.Velopack.Publishing.IUpdateDeferralStore"/> (see <c>AddVelopackUpdateDeferral</c>) and then start the scheduler. Opt-in, so apps that only check at startup are unchanged.</summary>
+        </member>
+        <member name="T:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateScheduler">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateScheduler.#ctor(AStar.Dev.Velopack.Publishing.IVelopackUpdateService,AStar.Dev.Velopack.Publishing.IUpdatePolicy,AStar.Dev.Velopack.Publishing.IUpdateDeferralStore,AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateAvailableViewModelFactory,AStar.Dev.Velopack.Publishing.Avalonia.Updates.IUpdateAvailableDialogService,System.TimeProvider,Microsoft.Extensions.Logging.ILogger{AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateScheduler})">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateScheduler.RunAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:AStar.Dev.Velopack.Publishing.Avalonia.Updates.UpdateSchedulerLog.Stopped(Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            <para><b>Message:</b> The update schedule was stopped.</para>
+            <para><b>Level:</b> Information</para>
+            </summary>
+        </member>
+        <member name="T:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs">
+            <summary>
+            A helper type providing cached, reusable <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instances
+            for all properties generated with <see cref="T:CommunityToolkit.Mvvm.ComponentModel.ObservablePropertyAttribute"/>.
+            </summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.TargetVersion">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "TargetVersion" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.ReleaseNotes">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "ReleaseNotes" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsBusy">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsBusy" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.ErrorMessage">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "ErrorMessage" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.DownloadProgress">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "DownloadProgress" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.DownloadProgressText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "DownloadProgressText" generated properties.</summary>
+        </member>
+        <member name="T:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs">
+            <summary>
+            A helper type providing cached, reusable <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instances
+            for all properties generated with <see cref="T:CommunityToolkit.Mvvm.ComponentModel.ObservablePropertyAttribute"/>.
+            </summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.TargetVersion">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "TargetVersion" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.ReleaseNotes">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "ReleaseNotes" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsBusy">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsBusy" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.ErrorMessage">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "ErrorMessage" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.DownloadProgress">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "DownloadProgress" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.DownloadProgressText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "DownloadProgressText" generated properties.</summary>
+        </member>
+    </members>
+</doc>

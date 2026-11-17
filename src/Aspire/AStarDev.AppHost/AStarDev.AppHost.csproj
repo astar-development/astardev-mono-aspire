@@ -10,8 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-<ProjectReference Include="..\..\web\AStarDev.Web\AStarDev.Web.csproj" />
-<ProjectReference Include="..\..\web\Fab4Kids\Fab4Kids.Web.csproj" />
+    <ProjectReference Include="..\..\web\AStarDev.Web\AStarDev.Web.csproj" />
+    <ProjectReference Include="..\..\web\Fab4Kids\Fab4Kids.Web.csproj" />
   </ItemGroup>
 
 </Project>

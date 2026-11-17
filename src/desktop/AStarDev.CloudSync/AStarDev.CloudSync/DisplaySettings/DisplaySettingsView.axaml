@@ -1,0 +1,206 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vmDisplaySettings="using:AStarDev.CloudSync.ViewModels.DisplaySettings"
+             xmlns:vmAccounts="using:AStarDev.CloudSync.ViewModels.Accounts"
+             x:Class="AStarDev.CloudSync.DisplaySettings.DisplaySettingsView"
+             x:DataType="vmDisplaySettings:DisplaySettingsViewModel"
+             Foreground="{DynamicResource CloudSyncTextPrimaryBrush}"
+             FontSize="13"
+             Width="240">
+    <StackPanel Spacing="12">
+        <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" />
+        <StackPanel Spacing="4">
+            <TextBlock Classes="muted" Text="{Binding LayoutText}" />
+            <ItemsControl ItemsSource="{Binding LayoutOptions}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vmDisplaySettings:DisplayOptionViewModel">
+                        <RadioButton GroupName="CloudSyncLayout"
+                                     Content="{Binding Label}"
+                                     IsChecked="{Binding IsSelected, Mode=OneWay}"
+                                     Command="{Binding SelectCommand}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+        <StackPanel Spacing="4">
+            <TextBlock Classes="muted" Text="{Binding ThemeText}" />
+            <ItemsControl ItemsSource="{Binding ThemeOptions}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vmDisplaySettings:DisplayOptionViewModel">
+                        <RadioButton GroupName="CloudSyncTheme"
+                                     Content="{Binding Label}"
+                                     IsChecked="{Binding IsSelected, Mode=OneWay}"
+                                     Command="{Binding SelectCommand}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+        <Border DataContext="{Binding Schedule}">
+            <StackPanel x:DataType="vmDisplaySettings:SyncScheduleSettingsViewModel" Spacing="4">
+                <TextBlock Classes="muted" Text="{Binding HeadingText}" />
+                <ItemsControl ItemsSource="{Binding Options}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vmDisplaySettings:DisplayOptionViewModel">
+                            <RadioButton GroupName="CloudSyncSchedule"
+                                         Content="{Binding Label}"
+                                         IsChecked="{Binding IsSelected, Mode=OneWay}"
+                                         Command="{Binding SelectCommand}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Text="{Binding ErrorText}"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource CloudSyncWarnBrush}"
+                           IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+            </StackPanel>
+        </Border>
+        <Border DataContext="{Binding TrashRetention}">
+            <StackPanel x:DataType="vmDisplaySettings:TrashRetentionSettingsViewModel" Spacing="4">
+                <TextBlock Classes="muted" Text="{Binding HeadingText}" />
+                <ItemsControl ItemsSource="{Binding Options}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vmDisplaySettings:DisplayOptionViewModel">
+                            <RadioButton GroupName="CloudSyncTrashRetention"
+                                         Content="{Binding Label}"
+                                         IsChecked="{Binding IsSelected, Mode=OneWay}"
+                                         Command="{Binding SelectCommand}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Text="{Binding ErrorText}"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource CloudSyncWarnBrush}"
+                           IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+            </StackPanel>
+        </Border>
+        <Border DataContext="{Binding Autostart}">
+            <StackPanel x:DataType="vmDisplaySettings:AutostartSettingsViewModel" Spacing="4">
+                <TextBlock Classes="muted" Text="{Binding HeadingText}" />
+                <CheckBox Content="{Binding ToggleText}"
+                          IsChecked="{Binding IsEnabled, Mode=OneWay}"
+                          IsEnabled="{Binding CanChange}"
+                          Command="{Binding ToggleCommand}"
+                          AutomationProperties.Name="{Binding ToggleText}" />
+                <TextBlock Text="{Binding ReasonText}"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource CloudSyncTextMutedBrush}"
+                           IsVisible="{Binding ReasonText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                <TextBlock Text="{Binding ErrorText}"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource CloudSyncWarnBrush}"
+                           IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+            </StackPanel>
+        </Border>
+        <Border DataContext="{Binding LogLevels}">
+            <StackPanel x:DataType="vmDisplaySettings:AccountLogLevelsViewModel" Spacing="4">
+                <TextBlock Classes="muted" Text="{Binding HeadingText}" />
+                <TextBlock Text="{Binding HelpText}"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource CloudSyncTextMutedBrush}" />
+                <TextBlock Text="{Binding NoAccountsText}"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding !HasAccounts}" />
+                <ItemsControl ItemsSource="{Binding Rows}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vmDisplaySettings:AccountLogLevelRowViewModel">
+                            <StackPanel Spacing="2">
+                                <CheckBox Content="{Binding LabelText}"
+                                          IsChecked="{Binding IsVerbose, Mode=OneWay}"
+                                          Command="{Binding ToggleCommand}"
+                                          AutomationProperties.Name="{Binding LabelText}" />
+                                <TextBlock Text="{Binding ErrorText}"
+                                           TextWrapping="Wrap"
+                                           Foreground="{DynamicResource CloudSyncWarnBrush}"
+                                           IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Text="{Binding ErrorText}"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource CloudSyncWarnBrush}"
+                           IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+            </StackPanel>
+        </Border>
+        <Border DataContext="{Binding FileAudit}">
+            <StackPanel x:DataType="vmDisplaySettings:FileAuditViewModel" Spacing="4">
+                <TextBlock Classes="muted" Text="{Binding HeadingText}" />
+                <TextBlock Text="{Binding HelpText}"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource CloudSyncTextMutedBrush}" />
+                <TextBlock Text="{Binding NoAccountsText}"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding !HasAccounts}" />
+                <ItemsControl ItemsSource="{Binding Accounts}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vmDisplaySettings:AuditAccountViewModel">
+                            <RadioButton GroupName="CloudSyncAuditAccount"
+                                         Content="{Binding Name}"
+                                         IsChecked="{Binding IsSelected, Mode=OneWay}"
+                                         Command="{Binding SelectCommand}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Button Classes="secondary"
+                        HorizontalAlignment="Left"
+                        Content="{Binding AuditText}"
+                        Command="{Binding AuditCommand}"
+                        IsVisible="{Binding ShowsAuditButton}" />
+                <StackPanel Spacing="6" IsVisible="{Binding IsConfirming}">
+                    <TextBlock Text="{Binding WarningText}"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource CloudSyncWarnBrush}" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                        <Button Classes="secondary" Content="{Binding CancelText}" Command="{Binding CancelCommand}" />
+                        <Button Classes="primary" Content="{Binding ConfirmText}" Command="{Binding ConfirmCommand}" />
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Spacing="6" IsVisible="{Binding IsRunning}">
+                    <TextBlock Text="{Binding RunningText}" TextWrapping="Wrap" />
+                    <ItemsControl ItemsSource="{Binding RunIndicators}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="x:Object">
+                                <ProgressBar IsIndeterminate="True" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button Classes="secondary"
+                            HorizontalAlignment="Left"
+                            Content="{Binding CancelText}"
+                            Command="{Binding CancelCommand}" />
+                </StackPanel>
+                <StackPanel Spacing="2" IsVisible="{Binding IsShowingResult}">
+                    <TextBlock Text="{Binding LocalFilesText}" />
+                    <TextBlock Text="{Binding CloudFilesText}" />
+                </StackPanel>
+                <TextBlock Text="{Binding ErrorText}"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource CloudSyncWarnBrush}"
+                           IsVisible="{Binding IsShowingError}" />
+            </StackPanel>
+        </Border>
+        <Border DataContext="{Binding PlaintextCacheConsent}">
+            <StackPanel x:DataType="vmAccounts:PlaintextCacheConsentSettingsViewModel"
+                        Spacing="6"
+                        IsVisible="{Binding IsVisible}">
+                <TextBlock Classes="muted" Text="{Binding HeadingText}" />
+                <TextBlock Text="{Binding GrantedText}" TextWrapping="Wrap" IsVisible="{Binding IsGranted}" />
+                <Button Classes="secondary"
+                        HorizontalAlignment="Left"
+                        Content="{Binding WithdrawText}"
+                        Command="{Binding WithdrawCommand}"
+                        IsVisible="{Binding IsGranted}" />
+                <StackPanel Spacing="6" IsVisible="{Binding IsConfirming}">
+                    <TextBlock Text="{Binding ConfirmMessageText}"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource CloudSyncWarnBrush}" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                        <Button Classes="secondary" Content="{Binding CancelText}" Command="{Binding CancelCommand}" />
+                        <Button Classes="primary" Content="{Binding ConfirmText}" Command="{Binding ConfirmCommand}" />
+                    </StackPanel>
+                </StackPanel>
+                <TextBlock Text="{Binding ResultText}" TextWrapping="Wrap" IsVisible="{Binding IsShowingResult}" />
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

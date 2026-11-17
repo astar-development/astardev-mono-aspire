@@ -1,0 +1,192 @@
+using AStarDev.CloudSync.Accounts;
+using AStarDev.CloudSync.Sync;
+using AStarDev.CloudSync.ViewModels.Accounts;
+using AStarDev.CloudSync.ViewModels.Activity;
+using AStarDev.CloudSync.ViewModels.Common;
+using AStarDev.CloudSync.ViewModels.Conflicts;
+using AStarDev.CloudSync.ViewModels.FolderSelection;
+using AStarDev.CloudSync.ViewModels.Overview;
+using AStarDev.CloudSync.ViewModels.SyncPairs;
+using AStarDev.FunctionalParadigm;
+using AStarDev.Localization;
+using CommunityToolkit.Mvvm.Input;
+
+namespace AStarDev.CloudSync.ViewModels.Layouts;
+
+/// <summary>What the layout B detail pane shows: the selected account, or a message when there are no accounts.</summary>
+/// <param name="localization">Supplies the text and culture.</param>
+public abstract class LayoutBDetailViewModel(ILocalizationService localization) : LocalizedObservableObject(localization);
+
+/// <summary>The layout B detail pane for the selected account.</summary>
+public sealed class AccountDetailViewModel : LayoutBDetailViewModel
+{
+    private const double FullCircleDegrees = 360;
+    private const int RecentActivityLimit = 5;
+
+    /// <summary>Creates the detail for <paramref name="account"/>, keeping the account's five newest activity entries.</summary>
+    /// <param name="account">The selected account.</param>
+    /// <param name="syncPairs">The account's sync pairs.</param>
+    /// <param name="activity">Activity across every account, newest first; only this account's entries are kept.</param>
+    /// <param name="localPathFormatter">Shortens the synced folders' local paths.</param>
+    /// <param name="syncActions">Carries out the account actions the user picks.</param>
+    /// <param name="tabs">The view models of the Folders and Conflicts tabs, read when their tab is selected.</param>
+    /// <param name="localization">Supplies the text and culture.</param>
+    public AccountDetailViewModel(AccountViewModel account, IReadOnlyList<SyncPairViewModel> syncPairs, IEnumerable<ActivityItemViewModel> activity, LocalPathFormatter localPathFormatter, ISyncActions syncActions, AccountDetailTabs tabs, ILocalizationService localization) : base(localization)
+    {
+        Account = account;
+        Conflicts = tabs.Conflicts;
+        Folders = tabs.Folders;
+        Activity = tabs.Activity;
+        PauseCommand = new AsyncRelayCommand(cancellationToken => syncActions.PauseAsync(account.Id, cancellationToken));
+        SyncNowCommand = new AsyncRelayCommand(cancellationToken => syncActions.SyncNowAsync(account.Id, cancellationToken));
+        AddFolderCommand = new AsyncRelayCommand(cancellationToken => syncActions.AddSyncPairAsync(Option.Some(account.Id), cancellationToken));
+        SyncPairs = syncPairs;
+        SyncedFolders = [.. syncPairs.Select(pair => new SyncedFolderViewModel(pair, localPathFormatter))];
+        RecentActivity = [.. activity.Where(item => item.AccountId == account.Id).Take(RecentActivityLimit)];
+        Stats =
+        [
+            new(() => account.FoldersText, CountKey.For("LayoutB.Stats.Folders", account.FolderCount), StatTileToneFactory.CreateNormal(), localization),
+            new(() => account.FilesText, CountKey.For("LayoutB.Stats.Files", account.FileCount), StatTileToneFactory.CreateNormal(), localization),
+            new(() => account.ConflictsText, CountKey.For("Stats.Conflicts", account.ConflictCount), StatTileToneFactory.CreateNormal(), localization),
+            new(() => account.LastSyncText, "LayoutB.Stats.LastSync", StatTileToneFactory.CreateNormal(), localization)
+        ];
+    }
+
+    /// <summary>The position of the Folders tab.</summary>
+    public const int FoldersTabIndex = 1;
+
+    /// <summary>The position of the Activity tab.</summary>
+    public const int ActivityTabIndex = 2;
+
+    /// <summary>The position of the Conflicts tab.</summary>
+    public const int ConflictsTabIndex = 3;
+
+    private int selectedTabIndex;
+
+    /// <summary>The selected account.</summary>
+    public AccountViewModel Account { get; }
+
+    /// <summary>The account's conflicts, read each time the Conflicts tab is selected.</summary>
+    public ConflictListViewModel Conflicts { get; }
+
+    /// <summary>The account's folder selection, read each time the Folders tab is selected.</summary>
+    public FolderSelectionViewModel Folders { get; }
+
+    /// <summary>The account's activity, read each time the Activity tab is selected.</summary>
+    public ActivityListViewModel Activity { get; }
+
+    /// <summary>The selected tab: Overview, Folders, Activity or Conflicts. Selecting one of the last three reads the account's folders, activity or conflicts.</summary>
+    public int SelectedTabIndex
+    {
+        get => selectedTabIndex;
+        set
+        {
+            if (!SetProperty(ref selectedTabIndex, value))
+                return;
+
+            if (value == FoldersTabIndex)
+                _ = Folders.ShowAccountCommand.ExecuteAsync(Account.Id);
+            else if (value == ActivityTabIndex)
+                _ = Activity.RefreshCommand.ExecuteAsync(null);
+            else if (value == ConflictsTabIndex)
+                _ = Conflicts.RefreshCommand.ExecuteAsync(null);
+        }
+    }
+
+    /// <summary>The account's sync pairs.</summary>
+    public IReadOnlyList<SyncPairViewModel> SyncPairs { get; }
+
+    /// <summary>The synced folders table rows, one per sync pair, with local paths shortened for display.</summary>
+    public IReadOnlyList<SyncedFolderViewModel> SyncedFolders { get; }
+
+    /// <summary>The account's five newest activity entries, newest first.</summary>
+    public IReadOnlyList<ActivityItemViewModel> RecentActivity { get; }
+
+    /// <summary>The account's figures: folders, files, conflicts and last sync.</summary>
+    public IReadOnlyList<StatTileViewModel> Stats { get; }
+
+    /// <summary>Provider and account, e.g. "OneDrive / Work".</summary>
+    public string BreadcrumbText => Localization.GetLocal("LayoutB.Breadcrumb", Account.Provider.Name, Account.Name);
+
+    /// <summary>Email and status, e.g. "work@example.com · Syncing 25%".</summary>
+    public string SubtitleText => Localization.GetLocal("LayoutB.Subtitle", Account.Email, Account.Status.Text);
+
+    /// <summary>The account's sync progress from 0 to 1.</summary>
+    public double Progress => Account.Status.Progress;
+
+    /// <summary>The storage ring's filled arc, in degrees.</summary>
+    public double StorageSweepAngle => Account.Storage.Fraction * FullCircleDegrees;
+
+    /// <summary>The used storage as a percentage, e.g. "71%".</summary>
+    public string StoragePercentText => Account.Storage.Fraction.ToString("P0", Localization.CurrentCulture);
+
+    /// <summary>Pauses syncing for the account.</summary>
+    public IAsyncRelayCommand PauseCommand { get; }
+
+    /// <summary>Syncs the account now.</summary>
+    public IAsyncRelayCommand SyncNowCommand { get; }
+
+    /// <summary>Starts adding a sync pair for the account.</summary>
+    public IAsyncRelayCommand AddFolderCommand { get; }
+
+    /// <summary>The pause action text: "Resume" while the account is paused, otherwise "Pause".</summary>
+    public string PauseText => Account.PauseText;
+
+    /// <summary>Whether Pause and Sync now can run; false while the account needs sign-in.</summary>
+    public bool CanSync => !Account.NeedsSignIn;
+
+    /// <summary>The sync-now action text.</summary>
+    public string SyncNowText => Localization.GetLocal("LayoutB.SyncNow");
+
+    /// <summary>The Overview tab header.</summary>
+    public string OverviewTabText => Localization.GetLocal("LayoutB.Tab.Overview");
+
+    /// <summary>The Folders tab header.</summary>
+    public string FoldersTabText => Localization.GetLocal("LayoutB.Tab.Folders");
+
+    /// <summary>The Activity tab header.</summary>
+    public string ActivityTabText => Localization.GetLocal("LayoutB.Tab.Activity");
+
+    /// <summary>The Conflicts tab header.</summary>
+    public string ConflictsTabText => Localization.GetLocal("LayoutB.Tab.Conflicts");
+
+    /// <summary>The synced folders table title.</summary>
+    public string SyncedFoldersText => Localization.GetLocal("LayoutB.SyncedFolders");
+
+    /// <summary>The add-folder action text.</summary>
+    public string AddFolderText => Localization.GetLocal("LayoutB.AddFolder");
+
+    /// <summary>The local folder column header.</summary>
+    public string LocalColumnText => Localization.GetLocal("LayoutB.Column.Local");
+
+    /// <summary>The cloud folder column header.</summary>
+    public string CloudColumnText => Localization.GetLocal("LayoutB.Column.Cloud");
+
+    /// <summary>The status column header.</summary>
+    public string StatusColumnText => Localization.GetLocal("LayoutB.Column.Status");
+
+    /// <summary>The last sync column header.</summary>
+    public string LastSyncColumnText => Localization.GetLocal("LayoutB.Column.LastSync");
+
+    /// <summary>The storage card title.</summary>
+    public string StorageText => Localization.GetLocal("LayoutB.Storage");
+
+    /// <summary>The activity card title.</summary>
+    public string ActivityText => Localization.GetLocal("LayoutB.Tab.Activity");
+}
+
+/// <summary>The layout B detail pane when no account is connected.</summary>
+/// <param name="localization">Supplies the message text.</param>
+public sealed class NoAccountDetailViewModel(ILocalizationService localization) : LayoutBDetailViewModel(localization)
+{
+    /// <summary>The message shown instead of account details.</summary>
+    public string Text => Localization.GetLocal("LayoutB.NoAccounts");
+}
+
+/// <summary>The layout B detail pane when accounts exist but none match the sidebar search.</summary>
+/// <param name="localization">Supplies the message text.</param>
+public sealed class NoMatchingAccountsDetailViewModel(ILocalizationService localization) : LayoutBDetailViewModel(localization)
+{
+    /// <summary>The message shown instead of account details.</summary>
+    public string Text => Localization.GetLocal("LayoutB.NoMatches");
+}

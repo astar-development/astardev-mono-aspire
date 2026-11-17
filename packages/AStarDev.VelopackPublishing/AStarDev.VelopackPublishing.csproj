@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    AStar.Dev.Velopack.Publishing
+    ══════════════════════════════
+    Shared Velopack update check/download/apply plumbing used by the AStar
+    desktop apps (AStarDev.OneDriveSyncClient, AStar.Dev.Wallpaper.Scraper),
+    so each app doesn't duplicate UpdateManager/GithubSource wiring.
+
+    Intentionally lean — TFM, nullable, analysers, IsPackable, GenerateDocumentationFile,
+    and SourceLink are all inherited from packages/Directory.Build.props and the
+    repo root Directory.Build.props. Only package-specific metadata lives here.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+        <PackageReleaseNotes>
+        v1.3.0 feat(velopack,cloudsync): scheduled update check, deferral store and forced update (#1681)
+        v1.2.0 feat(velopack,cloudsync): update apply gate, so an update waits for running syncs (#1679, #1680)
+        v1.1.0 feat(velopack): pure update policy with deferral and action unions (#1678)
+        v1.0.1 refactor(logging): replace interpolated free-text log messages with dedicated templates (#1372)
+        v1.0.0 fix(logging)!: log exception type names only, remove exception-taking templates (#1371)
+        v0.1.1 fix(logging): log exception type names only, never messages or instances (#1371)
+        v0.1.0 feat(velopack-publishing): expose update check outcome
+        </PackageReleaseNotes>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PackageTags>velopack;updates;publishing;astar;astardevelopment</PackageTags>
+    <Title>AStar Dev Velopack Publishing</Title>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Description>Shared Velopack update check/download/apply service and options binding used by AStar Development desktop apps.</Description>
+    <PackageProjectUrl>https://github.com/astar-development/astar-dev-mono/tree/main/packages/core/utilities</PackageProjectUrl>
+    <DocumentationFile>$(AssemblyName).xml</DocumentationFile>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!--
+      CA1031: CheckForUpdatesAsync deliberately catches every exception - it is a best-effort
+      background check (network/GitHub API/Velopack internals can all fail in ways callers
+      shouldn't need to enumerate) that logs and returns null rather than propagating.
+    -->
+    <NoWarn>$(NoWarn);CA1031</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Velopack" Version="1.2.161" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="11.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="11.0.0" />
+    <PackageReference Include="Testably.Abstractions" Version="10.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../AStarDev.FunctionalParadigm/AStarDev.FunctionalParadigm.csproj" />
+    <ProjectReference Include="../AStarDev.LoggingExtensions/AStarDev.LoggingExtensions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

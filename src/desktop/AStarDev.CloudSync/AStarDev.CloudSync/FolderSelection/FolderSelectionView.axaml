@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:AStarDev.CloudSync.FolderSelection"
+             xmlns:vmFolders="using:AStarDev.CloudSync.ViewModels.FolderSelection"
+             x:Class="AStarDev.CloudSync.FolderSelection.FolderSelectionView"
+             x:DataType="vmFolders:FolderSelectionViewModel"
+             VerticalContentAlignment="Stretch"
+             HorizontalContentAlignment="Stretch"
+             HorizontalAlignment="Center"
+             VerticalAlignment="Center">
+    <Border Background="{DynamicResource CloudSyncSurfaceBrush}"
+            BorderBrush="{DynamicResource CloudSyncBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="24"
+            Margin="24"
+            Width="560"
+            MaxHeight="640">
+        <local:FolderSelectionContent />
+    </Border>
+</UserControl>

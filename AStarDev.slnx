@@ -8,16 +8,59 @@
     <Project Path="packages/AStarDev.LoggingOTel.TestsUnit/AStarDev.LoggingOTel.TestsUnit.csproj" />
     <Project Path="packages/AStarDev.Utilities/AStarDev.Utilities.csproj" />
     <Project Path="packages/AStarDev.Utilities.TestsUnit/AStarDev.Utilities.TestsUnit.csproj" />
+    <Project Path="packages/AStarDev.DependencyInjection/AStarDev.DependencyInjection.csproj" />
+    <Project Path="packages/AStarDev.EFCoreSqlite/AStarDev.EFCoreSqlite.csproj" />
+    <Project Path="packages/AStarDev.Localization/AStarDev.Localization.csproj" />
+    <Project Path="packages/AStarDev.SingleInstance/AStarDev.SingleInstance.csproj" />
+    <Project Path="packages/AStarDev.SourceAnalyzers/AStarDev.SourceAnalyzers.csproj" />
+    <Project Path="packages/AStarDev.SourceGeneratorAttributes/AStarDev.SourceGeneratorAttributes.csproj" />
+    <Project Path="packages/AStarDev.SourceGenerators/AStarDev.SourceGenerators.csproj" />
+    <Project Path="packages/AStarDev.VelopackPublishing/AStarDev.VelopackPublishing.csproj" />
+    <Project Path="packages/AStarDev.VelopackPublishingAvalonia/AStarDev.VelopackPublishingAvalonia.csproj" />
   </Folder>
   <Folder Name="/src/" />
+  <Folder Name="/src/Aspire/" />
   <Folder Name="/src/Fab4Kids/">
     <Project Path="src/web/Fab4Kids/Fab4Kids.Web.csproj" />
+  </Folder>
+  <Folder Name="/src/web/" />
+  <Folder Name="/src/desktop/" />
+  <Folder Name="/src/desktop/AStarDev.CloudSync/">
+    <Project Path="src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Accounts.OneDrive/AStarDev.CloudSync.Accounts.OneDrive.csproj" />
+    <Project Path="src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Accounts.Sqlite/AStarDev.CloudSync.Accounts.Sqlite.csproj" />
+    <Project Path="src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Accounts/AStarDev.CloudSync.Accounts.csproj" />
+    <Project Path="src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Classification.Sqlite/AStarDev.CloudSync.Classification.Sqlite.csproj" />
+    <Project Path="src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Classification/AStarDev.CloudSync.Classification.csproj" />
+    <Project Path="src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.DisplaySettings/AStarDev.CloudSync.DisplaySettings.csproj" />
+    <Project Path="src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Overview/AStarDev.CloudSync.Overview.csproj" />
+    <Project Path="src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Sync.OneDrive/AStarDev.CloudSync.Sync.OneDrive.csproj" />
+    <Project Path="src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Sync.Sqlite/AStarDev.CloudSync.Sync.Sqlite.csproj" />
+    <Project Path="src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Sync/AStarDev.CloudSync.Sync.csproj" />
+    <Project Path="src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.ViewModels/AStarDev.CloudSync.ViewModels.csproj" />
+    <Project Path="src/desktop/AStarDev.CloudSync/AStarDev.CloudSync/AStarDev.CloudSync.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/web/AStarDev.Web.TestsIntegration/AStarDev.Web.TestsIntegration.csproj" />
     <Project Path="tests/web/AStarDev.Web.TestsUnit/AStarDev.Web.TestsUnit.csproj" />
     <Project Path="tests/web/Fab4Kids.Web.TestsIntegration/Fab4Kids.Web.TestsIntegration.csproj" />
     <Project Path="tests/web/Fab4Kids.Web.TestsUnit/Fab4Kids.Web.TestsUnit.csproj" />
+  </Folder>
+  <Folder Name="/tests/desktop/" />
+  <Folder Name="/tests/desktop/AStarDev.CloudSync/">
+    <Project Path="tests/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Accounts.OneDrive.TestsUnit/AStarDev.CloudSync.Accounts.OneDrive.TestsUnit.csproj" />
+    <Project Path="tests/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Accounts.Sqlite.TestsIntegration/AStarDev.CloudSync.Accounts.Sqlite.TestsIntegration.csproj" />
+    <Project Path="tests/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Accounts.TestsUnit/AStarDev.CloudSync.Accounts.TestsUnit.csproj" />
+    <Project Path="tests/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Classification.Sqlite.TestsIntegration/AStarDev.CloudSync.Classification.Sqlite.TestsIntegration.csproj" />
+    <Project Path="tests/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Classification.TestsUnit/AStarDev.CloudSync.Classification.TestsUnit.csproj" />
+    <Project Path="tests/desktop/AStarDev.CloudSync/AStarDev.CloudSync.DisplaySettings.TestsUnit/AStarDev.CloudSync.DisplaySettings.TestsUnit.csproj" />
+    <Project Path="tests/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Overview.TestsUnit/AStarDev.CloudSync.Overview.TestsUnit.csproj" />
+    <Project Path="tests/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Sync.OneDrive.TestsUnit/AStarDev.CloudSync.Sync.OneDrive.TestsUnit.csproj" />
+    <Project Path="tests/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Sync.Sqlite.TestsIntegration/AStarDev.CloudSync.Sync.Sqlite.TestsIntegration.csproj" />
+    <Project Path="tests/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Sync.TestsUnit/AStarDev.CloudSync.Sync.TestsUnit.csproj" />
+    <Project Path="tests/desktop/AStarDev.CloudSync/AStarDev.CloudSync.TestHelpers.Ui/AStarDev.CloudSync.TestHelpers.Ui.csproj" />
+    <Project Path="tests/desktop/AStarDev.CloudSync/AStarDev.CloudSync.TestHelpers/AStarDev.CloudSync.TestHelpers.csproj" />
+    <Project Path="tests/desktop/AStarDev.CloudSync/AStarDev.CloudSync.TestsUnit/AStarDev.CloudSync.TestsUnit.csproj" />
+    <Project Path="tests/desktop/AStarDev.CloudSync/AStarDev.CloudSync.ViewModels.TestsUnit/AStarDev.CloudSync.ViewModels.TestsUnit.csproj" />
   </Folder>
   <Project Path="src/Aspire/AStarDev.AppHost/AStarDev.AppHost.csproj" />
   <Project Path="src/Aspire/AStarDev.ServiceDefaults/AStarDev.ServiceDefaults.csproj" />

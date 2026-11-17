@@ -1,0 +1,11 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conflicts="using:AStarDev.CloudSync.Conflicts"
+             xmlns:vmConflicts="using:AStarDev.CloudSync.ViewModels.Conflicts"
+             x:Class="AStarDev.CloudSync.Conflicts.ConflictListView"
+             x:DataType="vmConflicts:ConflictListViewModel"
+             VerticalContentAlignment="Stretch"
+             HorizontalContentAlignment="Stretch"
+             Foreground="{DynamicResource CloudSyncTextPrimaryBrush}">
+    <conflicts:ConflictListContent />
+</UserControl>

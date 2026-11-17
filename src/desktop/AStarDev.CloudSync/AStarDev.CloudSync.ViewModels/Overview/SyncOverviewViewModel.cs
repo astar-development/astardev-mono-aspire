@@ -1,0 +1,162 @@
+using AStarDev.CloudSync.Accounts;
+using AStarDev.CloudSync.Overview;
+using AStarDev.CloudSync.Sync;
+using AStarDev.CloudSync.ViewModels.Accounts;
+using AStarDev.CloudSync.ViewModels.Activity;
+using AStarDev.CloudSync.ViewModels.Common;
+using AStarDev.CloudSync.ViewModels.SyncPairs;
+using AStarDev.FunctionalParadigm;
+using AStarDev.Localization;
+using AStarDev.LoggingExtensions;
+using Microsoft.Extensions.Logging;
+
+namespace AStarDev.CloudSync.ViewModels.Overview;
+
+/// <summary>The data every main window layout binds to: accounts, sync pairs, activity, conflicts, summary figures and throughput.</summary>
+/// <param name="source">Supplies the overview data.</param>
+/// <param name="accountCommands">Runs the account actions.</param>
+/// <param name="ruleWriter">Saves the direction a sync pair is changed to.</param>
+/// <param name="localization">Supplies the text and culture.</param>
+/// <param name="timeProvider">Supplies the current time for relative times.</param>
+/// <param name="logger">Reports an overview that cannot be read.</param>
+public sealed class SyncOverviewViewModel(ISyncOverviewSource source, IAccountCommands accountCommands, ILeasedSelectionRuleWriter ruleWriter, ILocalizationService localization, TimeProvider timeProvider, ILogger<SyncOverviewViewModel> logger) : LocalizedObservableObject(localization)
+{
+    /// <summary>Builds the overview without account actions (previews and tests that do not use them).</summary>
+    /// <param name="source">Reads the overview.</param>
+    /// <param name="localization">Supplies the text.</param>
+    /// <param name="timeProvider">Formats relative times.</param>
+    /// <param name="logger">Reports load failures.</param>
+    public SyncOverviewViewModel(ISyncOverviewSource source, ILocalizationService localization, TimeProvider timeProvider, ILogger<SyncOverviewViewModel> logger) : this(source, NoAccountCommands.Instance, NoSelectionRuleWriter.Instance, localization, timeProvider, logger)
+    {
+    }
+
+    private int loadsStarted;
+    private SyncOverview overview = SyncOverviewFactory.Create([], [], [], [], [], 0, Option.None<DateTimeOffset>());
+
+    /// <summary>The connected accounts.</summary>
+    public IReadOnlyList<AccountViewModel> Accounts { get; private set; } = [];
+
+    /// <summary>The sync pairs across every account.</summary>
+    public IReadOnlyList<SyncPairViewModel> SyncPairs { get; private set; } = [];
+
+    /// <summary>Recent activity across every account, newest first.</summary>
+    public IReadOnlyList<ActivityItemViewModel> Activity { get; private set; } = [];
+
+    /// <summary>How many conflicts are waiting for the user.</summary>
+    public int ConflictCount => overview.Conflicts.Count;
+
+    /// <summary>The summary figures: accounts, providers, folders synced, conflicts and overall status.</summary>
+    public IReadOnlyList<StatTileViewModel> Stats { get; private set; } = [];
+
+    /// <summary>Recent transfer rates.</summary>
+    public ThroughputViewModel Throughput { get; private set; } = new([], localization);
+
+    /// <summary>Bytes uploaded and downloaded today across every account.</summary>
+    public long BytesMovedToday => overview.BytesMovedToday;
+
+    /// <summary>When sync last checked for changes, if it ever has.</summary>
+    public Option<DateTimeOffset> LastChecked => overview.LastChecked;
+
+    /// <summary>When sync last checked for changes, relative to now, e.g. "10 min ago"; "Never" when it has not.</summary>
+    public string LastCheckedText => RelativeTimeFormatter.Format(overview.LastChecked, Localization, timeProvider);
+
+    /// <summary>How far the overview load has got.</summary>
+    public SyncOverviewLoadState LoadState { get; private set; } = SyncOverviewLoadStateFactory.CreateNotLoaded();
+
+    /// <summary>The text explaining that the overview could not be read; empty unless the load failed.</summary>
+    public string LoadErrorText => LoadState is SyncOverviewLoadState.Failed ? Localization.GetLocal("Overview.LoadFailed") : string.Empty;
+
+    /// <summary>Reads the overview from the source and rebuilds every collection. A failing source is logged and reported through <see cref="LoadState"/> instead of throwing; cancellation still throws.</summary>
+    /// <param name="cancellationToken">Cancels the read.</param>
+    public async Task LoadAsync(CancellationToken cancellationToken)
+    {
+        var load = Interlocked.Increment(ref loadsStarted);
+        _ = await UiResumingTry.RunAsync(() => source.GetOverviewAsync(cancellationToken), result => IsLatest(load) ? result.Match(Show, NotRead) : Unit.Instance, exception => IsLatest(load) ? Threw(exception) : Unit.Instance, cancellationToken);
+    }
+
+    private bool IsLatest(int load) => load == Volatile.Read(ref loadsStarted);
+
+    private Unit Threw(Exception exception)
+    {
+        SyncOverviewLog.OverviewLoadThrew(logger, exception.ErrorType());
+        SetLoadState(SyncOverviewLoadStateFactory.CreateFailed());
+
+        return Unit.Instance;
+    }
+
+    private Unit NotRead(ErrorResponse error)
+    {
+        SyncOverviewLog.OverviewSourceReportedFailure(logger);
+        SetLoadState(SyncOverviewLoadStateFactory.CreateFailed());
+
+        return Unit.Instance;
+    }
+
+    private Unit Show(SyncOverview loaded)
+    {
+        overview = loaded;
+        var accountsById = overview.Accounts.ToDictionary(account => account.Id);
+        
+        Accounts = [.. overview.Accounts.Select(account => new AccountViewModel(account, overview.Activity, accountCommands, Localization, timeProvider))];
+        SyncPairs = [.. overview.SyncPairs.Where(pair => accountsById.ContainsKey(pair.AccountId)).Select(pair => new SyncPairViewModel(pair, accountsById[pair.AccountId], ruleWriter, LoadAsync, Localization, timeProvider))];
+        Activity = [.. overview.Activity.Where(entry => accountsById.ContainsKey(entry.AccountId)).OrderByDescending(entry => entry.OccurredAt).Select(entry => new ActivityItemViewModel(entry, accountsById[entry.AccountId].DisplayName, new ProviderViewModel(accountsById[entry.AccountId].Provider, Localization), Localization, timeProvider))];
+        Stats = CreateStats();
+        Throughput = new ThroughputViewModel(overview.Throughput, Localization);
+
+        OnPropertyChanged(nameof(Accounts));
+        OnPropertyChanged(nameof(SyncPairs));
+        OnPropertyChanged(nameof(Activity));
+        OnPropertyChanged(nameof(ConflictCount));
+        OnPropertyChanged(nameof(Stats));
+        OnPropertyChanged(nameof(Throughput));
+        OnPropertyChanged(nameof(BytesMovedToday));
+        OnPropertyChanged(nameof(LastChecked));
+        OnPropertyChanged(nameof(LastCheckedText));
+        SetLoadState(SyncOverviewLoadStateFactory.CreateLoaded());
+
+        return Unit.Instance;
+    }
+
+    private void SetLoadState(SyncOverviewLoadState state)
+    {
+        LoadState = state;
+        OnPropertyChanged(nameof(LoadState));
+        OnPropertyChanged(nameof(LoadErrorText));
+    }
+
+    private StatTileViewModel[] CreateStats()
+    {
+        int providerCount = overview.Accounts.Select(account => account.Provider).Distinct().Count();
+        var folderCount = TotalFolders();
+
+        return
+        [
+            new(() => overview.Accounts.Count.ToString("N0", Localization.CurrentCulture), CountKey.For("Stats.Accounts", overview.Accounts.Count), StatTileToneFactory.CreateNormal(), Localization),
+            new(() => providerCount.ToString("N0", Localization.CurrentCulture), CountKey.For("Stats.Providers", providerCount), StatTileToneFactory.CreateNormal(), Localization),
+            new(() => CountText.Format(folderCount, Localization), CountKey.For("Stats.FoldersSynced", folderCount), StatTileToneFactory.CreateNormal(), Localization),
+            new(() => overview.Conflicts.Count.ToString("N0", Localization.CurrentCulture), CountKey.For("Stats.Conflicts", overview.Conflicts.Count), overview.Conflicts.Count > 0 ? StatTileToneFactory.CreateWarn() : StatTileToneFactory.CreateNormal(), Localization),
+            new(OverallStatusText, "Stats.OverallStatus", StatTileToneFactory.CreateAccent(), Localization)
+        ];
+    }
+
+    private Option<int> TotalFolders() => overview.Accounts.Aggregate(Option.Some(0), (total, account) => total.Bind(sum => account.FolderCount.Map(count => sum + count)));
+
+    /// <summary>The overall status across every account, e.g. "Syncing" or "Up to date".</summary>
+    /// <returns>The localised overall status.</returns>
+    public string OverallStatusText()
+    {
+        if (overview.Accounts.Any(account => account.SignIn is AccountSignInState.SignInRequired))
+            return Localization.GetLocal("Status.Overall.SignInRequired");
+
+        if (overview.Accounts.Any(account => account.Status is SyncStatus.Syncing))
+            return Localization.GetLocal("Status.Overall.Syncing");
+
+        if (overview.Conflicts.Count > 0)
+            return Localization.GetLocal("Status.Overall.Conflicts");
+
+        if (overview.Accounts.Count > 0 && overview.Accounts.All(account => account.Status is SyncStatus.Paused))
+            return Localization.GetLocal("Status.Paused");
+
+        return Localization.GetLocal("Status.UpToDate");
+    }
+}
