@@ -38,8 +38,8 @@ public class WebRootShould
         await app.StartAsync(cancellationToken).WaitAsync(DefaultTimeout, cancellationToken);
     
         // Act
-        using var httpClient = app.CreateHttpClient("webfrontend");
-        await app.ResourceNotifications.WaitForResourceHealthyAsync("webfrontend", cancellationToken).WaitAsync(DefaultTimeout, cancellationToken);
+        using var httpClient = app.CreateHttpClient("AStarDev-Web");
+        await app.ResourceNotifications.WaitForResourceHealthyAsync("AStarDev-Web", cancellationToken).WaitAsync(DefaultTimeout, cancellationToken);
         using var response = await httpClient.GetAsync("/", cancellationToken);
     
         // Assert

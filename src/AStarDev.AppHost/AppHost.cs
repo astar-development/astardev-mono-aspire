@@ -1,12 +1,11 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var apiService = builder.AddProject<Projects.AStarDev_ApiService>("apiservice")
+builder.AddProject<Projects.AStarDev_Web>("AStarDev-Web")
+    .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health");
 
-builder.AddProject<Projects.AStarDev_Web>("webfrontend")
+builder.AddProject<Projects.Fab4Kids_Web>("Fab4Kids-Web")
     .WithExternalHttpEndpoints()
-    .WithHttpHealthCheck("/health")
-    .WithReference(apiService)
-    .WaitFor(apiService);
+    .WithHttpHealthCheck("/health");
 
 builder.Build().Run();

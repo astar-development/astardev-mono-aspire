@@ -1,0 +1,45 @@
+using AStarDev.FunctionalParadigm;
+using AStarDev.LoggingExtensions;
+using Azure.Storage.Blobs;
+using Azure.Storage.Sas;
+using Fab4Kids.Web.Configuration;
+
+namespace Fab4Kids.Web.Fulfilment;
+
+/// <inheritdoc cref="IPdfDeliveryLinkGenerator"/>
+public sealed class BlobSasDeliveryLinkGenerator(ILogger<BlobSasDeliveryLinkGenerator> logger, BlobContainerClient? containerClient = null) : IPdfDeliveryLinkGenerator
+{
+    private static readonly TimeSpan SignedUrlTtl = TimeSpan.FromMinutes(15);
+
+    public Task<Result<string, string>> GenerateSignedUrlAsync(string blobPath, CancellationToken cancellationToken)
+    {
+        if (containerClient is null || !containerClient.CanGenerateSasUri)
+        {
+            ConfigurationLog.FeatureNotConfigured(logger, "Fulfilment storage");
+
+            return Task.FromResult(Result.Failure<string, string>("Something went wrong generating your download link."));
+        }
+
+        return Try.RunAsync(() => Task.FromResult(BuildSignedUrl(containerClient, blobPath)), cancellationToken).ToResultAsync(ex =>
+        {
+            LogMessage.ExceptionCaught(logger, nameof(BlobSasDeliveryLinkGenerator), ex.ErrorType());
+
+            return "Something went wrong generating your download link.";
+        });
+    }
+
+    private static string BuildSignedUrl(BlobContainerClient containerClient, string blobPath)
+    {
+        var blobClient = containerClient.GetBlobClient(blobPath);
+        var sasBuilder = new BlobSasBuilder
+        {
+            BlobContainerName = containerClient.Name,
+            BlobName = blobPath,
+            Resource = "b",
+            ExpiresOn = DateTimeOffset.UtcNow.Add(SignedUrlTtl)
+        };
+        sasBuilder.SetPermissions(BlobSasPermissions.Read);
+
+        return blobClient.GenerateSasUri(sasBuilder).ToString();
+    }
+}
