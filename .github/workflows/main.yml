@@ -72,6 +72,8 @@ jobs:
     needs: [test, coverage-aggregate]
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     permissions:
       contents: read
     steps:
@@ -112,6 +114,8 @@ jobs:
           path: ./coverage-merged
 
       - name: Run SonarCloud analysis using merged Opencover
+        # Skipped when SONAR_TOKEN is not set (forks, or the secret not configured yet).
+        if: ${{ env.SONAR_TOKEN != '' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
