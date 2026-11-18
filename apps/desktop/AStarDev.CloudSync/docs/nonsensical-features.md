@@ -34,3 +34,10 @@ Not exhaustive: static grep/read only, nothing was run.
 ## Verified not an issue
 - No unreferenced public types found (only extension/DI/design-time classes had a single mention).
 - `HasConflicts` pattern precedence in `StatusViewModel.cs:62` is correct (`is A or B` binds as a pattern).
+
+## Reviewer take (second pass, 2026-11-18)
+- Real bugs/gaps: #1 (feature missing from layouts B/C) and #2 (classification has no outcome). Both resolved by the decided search-and-browse work in `feature-ideas.md` #1 and #2. #3 resolves with it.
+- Worth doing: #6 (one failure message per reason) and #7 (label fix, trivial).
+- Churn, do only if touching the code anyway: #10 (decorator chain), #11 (naming drift), #13 (project merging). Low payoff against risk.
+- #5 retracted, #8 and #9 not issues (planned work).
+- Verify before acting on any finding: the agent worked from static reading only, and one finding was wrong.
