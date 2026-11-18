@@ -33,6 +33,7 @@ public static class ClassificationPersistenceServiceCollectionExtensions
             .AddSingleton<IFileClassificationStore>(provider => provider.GetRequiredService<SqliteFileClassificationStore>())
             .AddSingleton<IAccountRemovalParticipant>(provider => provider.GetRequiredService<SqliteFileClassificationStore>())
             .AddSingleton<Sync.ISyncRootChangeParticipant>(provider => provider.GetRequiredService<SqliteFileClassificationStore>())
+            .AddSingleton<IClassifiedFileSearch, SqliteClassifiedFileSearch>()
             .AddSingleton<ISeedStateStore, SqliteSeedStateStore>()
             .AddSingleton<IReclassifyRunStore, SqliteReclassifyRunStore>()
             .AddSingleton<IClassifiableFileSource, SqliteClassifiableFileSource>();
