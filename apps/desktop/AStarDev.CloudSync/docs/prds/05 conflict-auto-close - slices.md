@@ -5,6 +5,8 @@ plan. Date: 2026-11-18.
 
 ## Epic
 
+GitHub: epic #1, S1 #2, S2 #3.
+
 Title: Epic: Safe conflict auto-close.
 
 Close BothModified conflicts silently when local and cloud content are
@@ -26,8 +28,8 @@ green, activity entry shows in Layouts A, B and C.
 
 | Wave | Slice | Blocked by | Parallel with | Est. files |
 |------|-------|------------|---------------|------------|
-| 1 | S1 BothModified auto-close | none | none | ~10 |
-| 2 | S2 Activity summary | S1 | none | ~8 |
+| 1 | S1 (#2) BothModified auto-close | none | none | ~10 |
+| 2 | S2 (#3) Activity summary | S1 | none | ~8 |
 
 Critical path: S1 then S2. Nothing runs in parallel: S2 needs the count that S1
 produces, and both touch the upload and download executors.
@@ -71,6 +73,30 @@ pass tally, and 3 or 4 test files). Estimate from a grep, not a full read.
 Conflict hotspots: `UploadItemExecutor.cs` and `DownloadExecutor.cs` (S2 also
 reads the count there).
 
+Verification (project `tests/desktop/AStarDev.CloudSync.Sync.TestsUnit`; test
+names are proposed, none found for `FirstSyncLinker` today):
+
+| Criterion | Check |
+|-----------|-------|
+| Equal hash closes | Test `close_both_modified_when_hash_matches` |
+| Different hash raises | Test `raise_conflict_when_hash_differs` |
+| No cloud hash raises | Test `raise_conflict_when_cloud_hash_missing` |
+| Locked or changed file never closes | Test `not_close_when_file_locked` |
+| Executors use it | Tests on `UploadItemExecutor` and `DownloadExecutor` |
+| Nothing written or deleted | Test asserts no file operations |
+
+Write the tests first and see them fail. Run: `dotnet test
+tests/desktop/AStarDev.CloudSync.Sync.TestsUnit`, then the gate `dotnet build
+AStarDev.slnx` and `dotnet test AStarDev.slnx --filter
+"FullyQualifiedName!~Integration"`.
+
+Definition of done:
+
+- [ ] Failing tests written first, now pass.
+- [ ] Build and the unit gate pass; `mdl` and build warnings clean.
+- [ ] Only the files this slice needs are changed.
+- [ ] PR description pastes the test run output and lists criteria covered.
+
 ### S2: Activity-log summary
 
 Goal: one activity entry per run saying how many identical conflicts were
@@ -93,6 +119,41 @@ journal writer, activity view-model mapping, `en-GB.json`, 3 test files).
 
 Conflict hotspots: `en-GB.json` (a parallel Spanish locale PR would add a
 matching `es.json` key; coordinate), `ActivityKind.cs`.
+
+Verification (projects `...Sync.TestsUnit` and `...ViewModels.TestsUnit`; names
+proposed):
+
+| Criterion | Check |
+|-----------|-------|
+| "1 identical conflict closed" | Test `say_one_identical_conflict_closed` |
+| Plural and zero | Tests for N > 1 and no entry when zero |
+| One entry per run | Test on the pass journal writer |
+| Shows in A, B, C | Manual, steps below the table |
+
+Manual steps: run a sync with an identical conflict, open the activity list
+in each layout, expect the entry in each.
+
+Write the tests first and see them fail. Same gate commands as S1.
+
+Definition of done: same checklist as S1, plus the manual check recorded in the
+PR (layout and result for A, B and C).
+
+## Epic acceptance
+
+Closing checklist, ticked by the author of the last slice:
+
+- [ ] Identical BothAdded closes silently (already true; confirm unchanged).
+  Proven by S1 tests.
+- [ ] Identical BothModified closes silently. S1.
+- [ ] Differing content always raises the conflict. S1.
+- [ ] No cloud hash, locked or changed file never closes. S1.
+- [ ] No file written, deleted or moved by an auto-close. S1.
+- [ ] One activity summary per run, none when zero. S2.
+- [ ] Summary visible in Layouts A, B and C. S2 manual check.
+
+Independent verifier prompt: "Check each item in the Epic acceptance list
+against the merged code and tests. Report pass or fail per item with evidence
+(file and test name, test output). Change nothing."
 
 ## Assumptions and decisions
 
