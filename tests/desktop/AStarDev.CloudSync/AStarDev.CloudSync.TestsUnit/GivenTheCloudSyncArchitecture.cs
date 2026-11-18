@@ -45,8 +45,9 @@ public sealed class GivenTheCloudSyncArchitecture
         var root = CloudSyncFolder();
         var projects = root.GetDirectories("AStarDev.CloudSync*").Where(folder => !folder.Name.Contains("Test", StringComparison.Ordinal) && File.Exists(Path.Combine(folder.FullName, folder.Name + ".csproj"))).Select(folder => folder.Name);
 
-        var withoutTests = projects.Where(project => !Directory.Exists(Path.Combine(root.FullName, project + ".TestsUnit")) && !Directory.Exists(Path.Combine(root.FullName, project + ".TestsIntegration"))).ToList();
+        var tests = Path.Combine(root.FullName, "..", "..", "..", "tests", "desktop", root.Name);
+        var withoutTests = projects.Where(project => !Directory.Exists(Path.Combine(tests, project + ".TestsUnit")) && !Directory.Exists(Path.Combine(tests, project + ".TestsIntegration"))).ToList();
 
-        withoutTests.ShouldBeEmpty("Every production project needs a *.TestsUnit or *.TestsIntegration project beside it.");
+        withoutTests.ShouldBeEmpty("Every production project needs a *.TestsUnit or *.TestsIntegration project in the matching tests folder.");
     }
 }

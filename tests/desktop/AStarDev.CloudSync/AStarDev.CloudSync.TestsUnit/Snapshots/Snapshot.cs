@@ -18,7 +18,7 @@ internal static class Snapshot
     private const int ChannelTolerance = 8;
     private const int MaxDifferingPixels = 16;
     private const int BytesPerPixel = 4;
-    private static readonly string[] baselineFolderSegments = ["apps", "desktop", "AStarDev.CloudSync", "AStarDev.CloudSync.TestsUnit", "Snapshots", "Baselines"];
+    private static readonly string[] baselineFolderSegments = ["tests", "desktop", "AStarDev.CloudSync", "AStarDev.CloudSync.TestsUnit", "Snapshots", "Baselines"];
     private static readonly Vector dpi = new(96, 96);
 
     public static bool IsUpdatingBaselines => Environment.GetEnvironmentVariable("UPDATE_SNAPSHOTS") == "1";
