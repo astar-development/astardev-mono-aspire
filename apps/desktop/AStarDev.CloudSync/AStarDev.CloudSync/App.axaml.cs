@@ -182,6 +182,7 @@ public partial class App : Application, IDisposable
         var configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
             .AddJsonFile("appsettings.Debug.json", optional: true, reloadOnChange: false)
+            .AddEnvironmentVariables()
             .Build();
 
         var logLevels = new AccountLogLevels();
