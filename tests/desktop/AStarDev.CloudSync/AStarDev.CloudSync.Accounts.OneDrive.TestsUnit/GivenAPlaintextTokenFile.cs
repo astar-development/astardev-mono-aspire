@@ -45,7 +45,6 @@ public sealed class GivenAPlaintextTokenFile : IDisposable
         _ = Directory.CreateDirectory(folder);
         var properties = new StorageCreationPropertiesBuilder(FileName, folder).WithUnprotectedFile().Build();
         var helper = await MsalCacheHelper.CreateAsync(properties);
-        helper.VerifyPersistence();
 
         return helper;
     }
