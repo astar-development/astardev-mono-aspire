@@ -6,6 +6,8 @@ Status: Draft plan. Date: 2026-11-18.
 
 ## Epic
 
+GitHub: epic #9, S1 #10, S2 #11, S3 #12, S4 #13.
+
 Title: Epic: Classification search and browse.
 
 Users find files by category or term and see each file's categories, in all
