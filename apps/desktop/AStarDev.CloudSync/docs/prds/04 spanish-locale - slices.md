@@ -3,6 +3,8 @@
 PRD: [04 spanish-locale.md](<04 spanish-locale.md>). Status: Draft plan. Date:
 2026-11-18.
 
+GitHub: epic #17, S1 #18, S2 #19, S3 #20, S4 #21.
+
 ## Epic
 
 Title: Epic: Spanish locale.

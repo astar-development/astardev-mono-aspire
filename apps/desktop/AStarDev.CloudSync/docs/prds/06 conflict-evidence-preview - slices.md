@@ -3,6 +3,8 @@
 PRD: [06 conflict-evidence-preview.md](<06 conflict-evidence-preview.md>).
 Status: Draft plan. Date: 2026-11-18.
 
+GitHub: epic #22, S1 #23, S2 #24, S3 #25.
+
 ## Epic
 
 Title: Epic: Conflict evidence preview.

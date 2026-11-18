@@ -4,6 +4,8 @@ PRD: [02
 classification-confirm-override.md](<02 classification-confirm-override.md>).
 Status: Draft plan. Date: 2026-11-18.
 
+GitHub: epic #14, S1 #15, S2 #16.
+
 ## Epic
 
 Title: Epic: Classification confirm and override.
