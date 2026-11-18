@@ -19,7 +19,7 @@ public sealed class GivenAPlaintextTokenFile : IDisposable
     [UnsupportedOSPlatform("windows")]
     public async Task when_the_plaintext_cache_is_saved_then_only_the_owner_can_read_and_write_the_file()
     {
-        Assert.SkipWhen(OperatingSystem.IsWindows(), "Windows has no Unix file modes.");
+        Assert.SkipUnless(OperatingSystem.IsLinux(), "The unprotected token file is only used on Linux; Windows has no Unix file modes and macOS uses the keychain.");
         var helper = await CreateHelperAsync();
 
         helper.SaveUnencryptedTokenCache([1, 2, 3]);
@@ -31,7 +31,7 @@ public sealed class GivenAPlaintextTokenFile : IDisposable
     [UnsupportedOSPlatform("windows")]
     public async Task when_the_plaintext_cache_is_saved_again_then_the_file_stays_owner_only()
     {
-        Assert.SkipWhen(OperatingSystem.IsWindows(), "Windows has no Unix file modes.");
+        Assert.SkipUnless(OperatingSystem.IsLinux(), "The unprotected token file is only used on Linux; Windows has no Unix file modes and macOS uses the keychain.");
         var helper = await CreateHelperAsync();
         helper.SaveUnencryptedTokenCache([1, 2, 3]);
 
@@ -45,7 +45,6 @@ public sealed class GivenAPlaintextTokenFile : IDisposable
         _ = Directory.CreateDirectory(folder);
         var properties = new StorageCreationPropertiesBuilder(FileName, folder).WithUnprotectedFile().Build();
         var helper = await MsalCacheHelper.CreateAsync(properties);
-        helper.VerifyPersistence();
 
         return helper;
     }

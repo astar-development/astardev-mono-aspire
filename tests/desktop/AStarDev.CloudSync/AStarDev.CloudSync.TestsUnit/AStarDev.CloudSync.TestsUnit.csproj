@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AssemblyMetadata Include="CloudSyncSourceFolder" Value="$(MSBuildProjectDirectory)/.." />
+    <AssemblyMetadata Include="CloudSyncSourceFolder" Value="$(MSBuildProjectDirectory)/../../../../apps/desktop/AStarDev.CloudSync" />
   </ItemGroup>
 
   <ItemGroup>
