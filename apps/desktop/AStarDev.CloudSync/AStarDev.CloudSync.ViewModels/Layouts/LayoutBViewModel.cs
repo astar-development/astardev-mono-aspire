@@ -1,8 +1,10 @@
 using System.ComponentModel;
+using System.Windows.Input;
 using AStarDev.CloudSync.Accounts;
 using AStarDev.CloudSync.Sync;
 using AStarDev.CloudSync.ViewModels.Accounts;
 using AStarDev.CloudSync.ViewModels.Activity;
+using AStarDev.CloudSync.ViewModels.Classification;
 using AStarDev.CloudSync.ViewModels.Common;
 using AStarDev.CloudSync.ViewModels.Conflicts;
 using AStarDev.CloudSync.ViewModels.FolderSelection;
@@ -24,6 +26,7 @@ public sealed class LayoutBViewModel : LocalizedObservableObject
     private readonly IFolderSelectionFactory folderSelections;
     private readonly IActivityListFactory activityLists;
     private LayoutBDetailViewModel detail;
+    private LayoutBPage page = LayoutBPageFactory.CreateAccount();
     private string searchText = string.Empty;
     private AccountId shownAccountId;
 
@@ -34,10 +37,13 @@ public sealed class LayoutBViewModel : LocalizedObservableObject
     /// <param name="conflictLists">Creates the conflict list of each account's Conflicts tab.</param>
     /// <param name="folderSelections">Creates the folder selection of each account's Folders tab.</param>
     /// <param name="activityLists">Creates the activity list of each account's Activity tab.</param>
+    /// <param name="classification">The Classification page, which also hosts the file search the results panel shows.</param>
     /// <param name="localization">Supplies the text and culture.</param>
-    public LayoutBViewModel(SyncOverviewViewModel overview, LocalPathFormatter localPathFormatter, ISyncActions syncActions, IConflictListFactory conflictLists, IFolderSelectionFactory folderSelections, IActivityListFactory activityLists, ILocalizationService localization) : base(localization)
+    public LayoutBViewModel(SyncOverviewViewModel overview, LocalPathFormatter localPathFormatter, ISyncActions syncActions, IConflictListFactory conflictLists, IFolderSelectionFactory folderSelections, IActivityListFactory activityLists, ClassificationPageViewModel classification, ILocalizationService localization) : base(localization)
     {
         Overview = overview;
+        Classification = classification;
+        Search = new SearchResultsViewModel(overview, OpenAccount, OpenFolder, classification.Files, localization);
         this.localPathFormatter = localPathFormatter;
         this.syncActions = syncActions;
         this.conflictLists = conflictLists;
@@ -46,6 +52,12 @@ public sealed class LayoutBViewModel : LocalizedObservableObject
         ConnectProviderCommand = new AsyncRelayCommand(AddAccountAndReloadAsync);
         detail = new NoAccountDetailViewModel(localization);
         overview.PropertyChanged += OnOverviewChanged;
+        Search.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(SearchResultsViewModel.SearchText))
+                SearchText = Search.SearchText;
+        };
+        classification.Tabs.Terms.FilesRequested += (_, term) => OpenTermFiles(term);
         Rebuild();
     }
 
@@ -54,6 +66,27 @@ public sealed class LayoutBViewModel : LocalizedObservableObject
 
     /// <summary>The accounts grouped by provider, in overview order.</summary>
     public IReadOnlyList<ProviderGroupViewModel> ProviderGroups { get; private set; } = [];
+
+    /// <summary>The search results shown while the sidebar search box has text: accounts, folders and files, with category chips. Its text follows the sidebar box and the other way round.</summary>
+    public SearchResultsViewModel Search { get; }
+
+    /// <summary>The Classification page: terms, suggestions and the reclassify button.</summary>
+    public ClassificationPageViewModel Classification { get; }
+
+    /// <summary>Whether the selected account's detail is shown.</summary>
+    public bool IsAccountPageShown => page is LayoutBPage.Account;
+
+    /// <summary>Whether the search results are shown.</summary>
+    public bool IsSearchPageShown => page is LayoutBPage.Search;
+
+    /// <summary>Whether the Classification page is shown.</summary>
+    public bool IsClassificationPageShown => page is LayoutBPage.Classification;
+
+    /// <summary>The Classification button text.</summary>
+    public string ClassificationText => Localization.GetLocal("LayoutB.Classification");
+
+    /// <summary>Shows the Classification page and reads the term list again.</summary>
+    public ICommand ShowClassificationCommand => field ??= new RelayCommand(ShowClassification);
 
     /// <summary>The detail pane content: the selected account, or a no-accounts message.</summary>
     public LayoutBDetailViewModel Detail
@@ -72,8 +105,8 @@ public sealed class LayoutBViewModel : LocalizedObservableObject
         get => detail is AccountDetailViewModel accountDetail ? accountDetail.Account : detail;
         set
         {
-            if (value is AccountViewModel account)
-                Select(account);
+            if (value is AccountViewModel account && !ReferenceEquals(SelectedItem, account))
+                Choose(account);
             else
                 OnPropertyChanged();
         }
@@ -96,8 +129,12 @@ public sealed class LayoutBViewModel : LocalizedObservableObject
         get => searchText;
         set
         {
-            if (SetProperty(ref searchText, value ?? string.Empty))
-                Rebuild();
+            if (!SetProperty(ref searchText, value ?? string.Empty))
+                return;
+
+            Rebuild();
+            Search.SearchText = searchText;
+            ShowPageForSearchText();
         }
     }
 
@@ -109,6 +146,56 @@ public sealed class LayoutBViewModel : LocalizedObservableObject
 
     /// <summary>Starts connecting a new account, from any provider.</summary>
     public IAsyncRelayCommand ConnectProviderCommand { get; }
+
+    private void ShowClassification()
+    {
+        Show(LayoutBPageFactory.CreateClassification());
+        _ = Classification.LoadCommand.ExecuteAsync(null);
+    }
+
+    private void OpenTermFiles(TermRowViewModel term)
+    {
+        Show(LayoutBPageFactory.CreateSearch());
+        _ = Search.Files.LoadCommand.ExecuteAsync(null);
+        _ = Search.Files.SelectTermAsync(term.Id, term.Text);
+    }
+
+    private void OpenAccount(AccountViewModel account) => Choose(account);
+
+    private void OpenFolder(SyncPairViewModel pair)
+    {
+        var account = Overview.Accounts.FirstOrDefault(candidate => candidate.Id == pair.AccountId);
+
+        if (account is null)
+            return;
+
+        Choose(account);
+
+        if (detail is AccountDetailViewModel accountDetail)
+            accountDetail.SelectedTabIndex = AccountDetailViewModel.FoldersTabIndex;
+    }
+
+    private void Choose(AccountViewModel account)
+    {
+        Select(account);
+        Show(LayoutBPageFactory.CreateAccount());
+    }
+
+    private void ShowPageForSearchText()
+    {
+        if (searchText.Trim().Length > 0)
+            Show(LayoutBPageFactory.CreateSearch());
+        else if (page is LayoutBPage.Search && !Search.Files.IsActive)
+            Show(LayoutBPageFactory.CreateAccount());
+    }
+
+    private void Show(LayoutBPage shown)
+    {
+        page = shown;
+        OnPropertyChanged(nameof(IsAccountPageShown));
+        OnPropertyChanged(nameof(IsSearchPageShown));
+        OnPropertyChanged(nameof(IsClassificationPageShown));
+    }
 
     private void OnOverviewChanged(object? sender, PropertyChangedEventArgs args)
     {
