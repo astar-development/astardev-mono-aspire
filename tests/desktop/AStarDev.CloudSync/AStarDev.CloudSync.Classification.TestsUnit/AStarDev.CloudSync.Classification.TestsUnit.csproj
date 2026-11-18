@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../../src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Classification/AStarDev.CloudSync.Classification.csproj" />
+    <ProjectReference Include="../../../../apps/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Classification/AStarDev.CloudSync.Classification.csproj" />
     <ProjectReference Include="../AStarDev.CloudSync.TestHelpers/AStarDev.CloudSync.TestHelpers.csproj" />
   </ItemGroup>
 

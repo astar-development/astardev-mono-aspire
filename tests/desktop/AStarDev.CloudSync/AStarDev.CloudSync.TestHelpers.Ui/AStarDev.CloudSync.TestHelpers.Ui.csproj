@@ -14,9 +14,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../../src/desktop/AStarDev.CloudSync/AStarDev.CloudSync/AStarDev.CloudSync.csproj" />
+    <ProjectReference Include="../../../../apps/desktop/AStarDev.CloudSync/AStarDev.CloudSync/AStarDev.CloudSync.csproj" />
     <ProjectReference Include="../AStarDev.CloudSync.TestHelpers/AStarDev.CloudSync.TestHelpers.csproj" />
-    <ProjectReference Include="../../../../src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.ViewModels/AStarDev.CloudSync.ViewModels.csproj" />
+    <ProjectReference Include="../../../../apps/desktop/AStarDev.CloudSync/AStarDev.CloudSync.ViewModels/AStarDev.CloudSync.ViewModels.csproj" />
   </ItemGroup>
 
   <ItemGroup>

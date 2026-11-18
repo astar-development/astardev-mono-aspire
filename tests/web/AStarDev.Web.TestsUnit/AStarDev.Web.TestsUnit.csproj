@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\web\AStarDev.Web\AStarDev.Web.csproj" />
+    <ProjectReference Include="..\..\..\apps\web\AStarDev.Web\AStarDev.Web.csproj" />
   </ItemGroup>
 
 </Project>

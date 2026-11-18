@@ -15,11 +15,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../../src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Accounts/AStarDev.CloudSync.Accounts.csproj" />
-    <ProjectReference Include="../../../../src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Classification/AStarDev.CloudSync.Classification.csproj" />
-    <ProjectReference Include="../../../../src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.DisplaySettings/AStarDev.CloudSync.DisplaySettings.csproj" />
-    <ProjectReference Include="../../../../src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Overview/AStarDev.CloudSync.Overview.csproj" />
-    <ProjectReference Include="../../../../src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Sync/AStarDev.CloudSync.Sync.csproj" />
+    <ProjectReference Include="../../../../apps/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Accounts/AStarDev.CloudSync.Accounts.csproj" />
+    <ProjectReference Include="../../../../apps/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Classification/AStarDev.CloudSync.Classification.csproj" />
+    <ProjectReference Include="../../../../apps/desktop/AStarDev.CloudSync/AStarDev.CloudSync.DisplaySettings/AStarDev.CloudSync.DisplaySettings.csproj" />
+    <ProjectReference Include="../../../../apps/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Overview/AStarDev.CloudSync.Overview.csproj" />
+    <ProjectReference Include="../../../../apps/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Sync/AStarDev.CloudSync.Sync.csproj" />
   </ItemGroup>
 
   <ItemGroup>

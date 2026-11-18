@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../../src/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Sync.OneDrive/AStarDev.CloudSync.Sync.OneDrive.csproj" />
+    <ProjectReference Include="../../../../apps/desktop/AStarDev.CloudSync/AStarDev.CloudSync.Sync.OneDrive/AStarDev.CloudSync.Sync.OneDrive.csproj" />
     <ProjectReference Include="../AStarDev.CloudSync.TestHelpers/AStarDev.CloudSync.TestHelpers.csproj" />
   </ItemGroup>
 
