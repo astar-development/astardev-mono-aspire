@@ -52,6 +52,8 @@
     Example:
   -->
   <ItemGroup Label="AStar.Dev packages">
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="17.0.0" />
+    <PackageVersion Include="Aspire.Hosting.Dotnet" Version="17.0.0" />
     <PackageVersion Include="AStarDev.LoggingOTel" Version="0.1.0" />
     <PackageVersion Include="AStarDev.SourceGenerators" Version="0.1.14" />
     <PackageVersion Include="AStarDev.Utilities" Version="0.2.1" />

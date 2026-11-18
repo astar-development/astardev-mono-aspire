@@ -1,18 +1,16 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.6.5">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net11.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AspireUseCliBundle>true</AspireUseCliBundle>
     <UserSecretsId>27f5db9f-cef1-44a2-b55c-298333ff1e1c</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\web\AStarDev.Web\AStarDev.Web.csproj" />
-    <ProjectReference Include="..\..\web\Fab4Kids\Fab4Kids.Web.csproj" />
-    <ProjectReference Include="..\..\desktop\AStarDev.CloudSync\AStarDev.CloudSync\AStarDev.CloudSync.csproj" />
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.Dotnet" />
   </ItemGroup>
 
 </Project>
