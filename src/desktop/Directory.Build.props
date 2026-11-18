@@ -8,7 +8,7 @@
     here reflect that — particularly around runtime identifiers, self-contained
     publishing, and platform-specific TFM overrides.
   -->
-  <Import Project="$(MSBuildThisFileDirectory)../../build/AStarDev.Common.props" />
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
   <PropertyGroup>
     <!-- Desktop apps are not NuGet packages -->

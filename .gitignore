@@ -417,3 +417,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# artifacts output (set in Directory.Build.props)
+/artifacts/

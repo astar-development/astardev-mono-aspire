@@ -8,16 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Communication.Email" Version="1.1.0" />
-    <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
-    <PackageReference Include="Markdig" Version="1.6.0" />
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="5.1.0" />
+    <PackageReference Include="Azure.Communication.Email" />
+    <PackageReference Include="Blazored.LocalStorage" />
+    <PackageReference Include="Markdig" />
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Aspire\AStarDev.ServiceDefaults\AStarDev.ServiceDefaults.csproj" />
-    <ProjectReference Include="..\..\..\packages\AStarDev.FunctionalParadigm\AStarDev.FunctionalParadigm.csproj" />
-    <ProjectReference Include="..\..\..\packages\AStarDev.LoggingExtensions\AStarDev.LoggingExtensions.csproj" />
+    <ProjectReference Include="..\..\..\packages\core\functional\AStarDev.FunctionalParadigm\AStarDev.FunctionalParadigm.csproj" />
+    <ProjectReference Include="..\..\..\packages\core\logging\AStarDev.LoggingExtensions\AStarDev.LoggingExtensions.csproj" />
   </ItemGroup>
 
 </Project>

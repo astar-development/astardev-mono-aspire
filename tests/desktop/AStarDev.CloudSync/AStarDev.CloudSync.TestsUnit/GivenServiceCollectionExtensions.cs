@@ -687,7 +687,7 @@ public class GivenServiceCollectionExtensions
     private static IServiceCollection CreateServices()
     {
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> { ["Updates:GithubRepositoryUrl"] = "https://github.com/astar-development/astar-dev-mono", ["Updates:ChannelPrefix"] = "cloudsync", ["MicrosoftAccount:ClientId"] = "3057f494-687d-4abb-a653-4b8066230b6e" })
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["Updates:GithubRepositoryUrl"] = "https://github.com/astar-development/astardev-mono-aspire", ["Updates:ChannelPrefix"] = "cloudsync", ["MicrosoftAccount:ClientId"] = "3057f494-687d-4abb-a653-4b8066230b6e" })
             .Build();
 
         return new ServiceCollection()

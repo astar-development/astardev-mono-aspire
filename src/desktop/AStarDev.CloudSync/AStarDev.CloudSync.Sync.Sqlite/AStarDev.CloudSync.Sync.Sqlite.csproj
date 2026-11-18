@@ -13,19 +13,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.12" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Testably.Abstractions" Version="10.4.0" />
+    <PackageReference Include="Testably.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="../AStarDev.CloudSync.Sync/AStarDev.CloudSync.Sync.csproj" />
-    <ProjectReference Include="../../../../packages/AStarDev.DependencyInjection/AStarDev.DependencyInjection.csproj" />
-    <ProjectReference Include="../../../../packages/AStarDev.LoggingExtensions/AStarDev.LoggingExtensions.csproj" />
-    <ProjectReference Include="../../../../packages/AStarDev.EFCoreSqlite/AStarDev.EFCoreSqlite.csproj" />
+    <ProjectReference Include="../../../../packages/core/utilities/AStarDev.DependencyInjection/AStarDev.DependencyInjection.csproj" />
+    <ProjectReference Include="../../../../packages/core/logging/AStarDev.LoggingExtensions/AStarDev.LoggingExtensions.csproj" />
+    <ProjectReference Include="../../../../packages/EFCore/AStarDev.EFCoreSqlite/AStarDev.EFCoreSqlite.csproj" />
   </ItemGroup>
 
 </Project>
