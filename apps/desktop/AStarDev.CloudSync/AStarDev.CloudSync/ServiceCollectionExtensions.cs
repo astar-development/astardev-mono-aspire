@@ -26,7 +26,9 @@ using AStarDev.CloudSync.Tray;
 using AStarDev.CloudSync.ViewModels;
 using AStarDev.CloudSync.ViewModels.Accounts;
 using AStarDev.CloudSync.ViewModels.Activity;
+using AStarDev.CloudSync.Search;
 using AStarDev.CloudSync.ViewModels.Classification;
+using AStarDev.CloudSync.ViewModels.Search;
 using AStarDev.CloudSync.ViewModels.Common;
 using AStarDev.CloudSync.ViewModels.Conflicts;
 using AStarDev.CloudSync.ViewModels.DisplaySettings;
@@ -148,6 +150,8 @@ public static class ServiceCollectionExtensions
             .AddSingleton<SyncOverviewViewModel>()
             .AddSingleton<ConflictListSources>()
             .AddSingleton<ConflictListViewModel>()
+            .AddSingleton<IFileRevealer, FileRevealer>()
+            .AddSingleton<FileSearchViewModel>()
             .AddSingleton<ClassificationTermListViewModel>()
             .AddSingleton<ClassificationSuggestionsViewModel>()
             .AddSingleton<ClassificationTabsViewModel>()

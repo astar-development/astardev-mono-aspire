@@ -38,7 +38,8 @@ public sealed class LayoutAViewModel : LocalizedObservableObject
         Folders = folderSelections.CreatePage();
         Activity = activityLists.Create(overview, Option.None<AccountId>());
         Classification = classification;
-        Search = new SearchResultsViewModel(overview, OpenAccount, OpenFolder, localization);
+        Search = new SearchResultsViewModel(overview, OpenAccount, OpenFolder, classification.Files, localization);
+        classification.Tabs.Terms.FilesRequested += (_, term) => OpenTermFiles(term);
         this.syncActions = syncActions;
         AddAccountCommand = new AsyncRelayCommand(AddAccountAndReloadAsync);
         overview.PropertyChanged += OnOverviewChanged;
@@ -137,7 +138,7 @@ public sealed class LayoutAViewModel : LocalizedObservableObject
     public ICommand ShowClassificationCommand => field ??= new RelayCommand(ShowClassification);
 
     /// <summary>Shows the search page.</summary>
-    public ICommand ShowSearchCommand => field ??= new RelayCommand(() => Show(LayoutAPageFactory.CreateSearch()));
+    public ICommand ShowSearchCommand => field ??= new RelayCommand(ShowSearch);
 
     /// <summary>The dashboard rail button name.</summary>
     public string DashboardText => Localization.GetLocal("LayoutA.Nav.Dashboard");
@@ -156,6 +157,18 @@ public sealed class LayoutAViewModel : LocalizedObservableObject
 
     /// <summary>The search rail button name.</summary>
     public string SearchText => Localization.GetLocal("LayoutA.Nav.Search");
+
+    private void ShowSearch()
+    {
+        Show(LayoutAPageFactory.CreateSearch());
+        _ = Search.Files.LoadCommand.ExecuteAsync(null);
+    }
+
+    private void OpenTermFiles(TermRowViewModel term)
+    {
+        ShowSearch();
+        _ = Search.Files.SelectTermAsync(term.Id, term.Text);
+    }
 
     private void OpenAccount(AccountViewModel account)
     {

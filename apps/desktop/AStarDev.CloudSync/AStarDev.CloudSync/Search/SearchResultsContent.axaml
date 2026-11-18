@@ -18,8 +18,25 @@
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Background" Value="Transparent" />
         </Style>
+        <Style Selector="Button.chip">
+            <Setter Property="Height" Value="26" />
+            <Setter Property="MinHeight" Value="26" />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="CornerRadius" Value="13" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CloudSyncBorderBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource CloudSyncTextMutedBrush}" />
+        </Style>
+        <Style Selector="Button.chip.selected">
+            <Setter Property="BorderBrush" Value="{DynamicResource CloudSyncAccentBrush}" />
+            <Setter Property="Background" Value="{DynamicResource CloudSyncAccentSoftBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource CloudSyncTextPrimaryBrush}" />
+        </Style>
     </UserControl.Styles>
-    <Grid RowDefinitions="Auto,*"
+    <Grid RowDefinitions="Auto,Auto,*"
           HorizontalAlignment="Stretch"
           VerticalAlignment="Stretch">
         <TextBox Grid.Row="0"
@@ -30,7 +47,20 @@
                  PlaceholderText="{Binding PlaceholderText}"
                  AutomationProperties.Name="{Binding PlaceholderText}" />
 
-        <ScrollViewer Grid.Row="1"
+        <ItemsControl Grid.Row="1" Margin="0,0,0,12" ItemsSource="{Binding Files.Chips}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel ItemSpacing="6" LineSpacing="6" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vmSearch:FileFilterChipViewModel">
+                    <Button Classes="chip" Classes.selected="{Binding IsSelected}" Content="{Binding Label}" Command="{Binding ToggleCommand}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <ScrollViewer Grid.Row="2"
                       Name="SearchScroll"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled"
@@ -80,6 +110,42 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                </StackPanel>
+
+                <StackPanel Spacing="8" IsVisible="{Binding Files.IsActive}">
+                    <TextBlock Classes="muted" Text="{Binding Files.HeadingText}" FontSize="11" FontWeight="SemiBold" />
+                    <TextBlock Classes="muted" Text="{Binding Files.LoadingText}" IsVisible="{Binding Files.IsLoading}" />
+                    <TextBlock Classes="muted" Text="{Binding Files.EmptyText}" IsVisible="{Binding Files.IsEmpty}" />
+                    <TextBlock Text="{Binding Files.FailedText}"
+                               IsVisible="{Binding Files.IsFailed}"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource CloudSyncWarnBrush}" />
+                    <TextBlock Text="{Binding Files.RevealErrorText}"
+                               IsVisible="{Binding Files.HasRevealError}"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource CloudSyncWarnBrush}" />
+                    <ItemsControl ItemsSource="{Binding Files.Rows}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vmSearch:FileRowViewModel">
+                                <Button Classes="search-result"
+                                        Command="{Binding RevealCommand}"
+                                        AutomationProperties.Name="{Binding Name}">
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Name}" FontWeight="Medium" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Classes="muted" Text="{Binding CategoriesText}" TextTrimming="CharacterEllipsis" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Classes="muted" Text="{Binding SizeText}" VerticalAlignment="Center" />
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button Content="{Binding Files.ShowMoreText}"
+                            Command="{Binding Files.ShowMoreCommand}"
+                            IsVisible="{Binding Files.HasMore}"
+                            HorizontalAlignment="Left"
+                            AutomationProperties.Name="{Binding Files.ShowMoreText}" />
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>

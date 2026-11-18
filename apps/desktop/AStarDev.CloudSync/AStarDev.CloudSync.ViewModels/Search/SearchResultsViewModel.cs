@@ -17,13 +17,16 @@ public sealed class SearchResultsViewModel : LocalizedObservableObject
     /// <param name="overview">The shared overview whose accounts and sync pairs are searched.</param>
     /// <param name="openAccount">Called with the account the user picks from the results.</param>
     /// <param name="openFolder">Called with the folder the user picks from the results.</param>
+    /// <param name="files">The Files section, searched with the same text.</param>
     /// <param name="localization">Supplies the text and culture.</param>
-    public SearchResultsViewModel(SyncOverviewViewModel overview, Action<AccountViewModel> openAccount, Action<SyncPairViewModel> openFolder, ILocalizationService localization) : base(localization)
+    public SearchResultsViewModel(SyncOverviewViewModel overview, Action<AccountViewModel> openAccount, Action<SyncPairViewModel> openFolder, FileSearchViewModel files, ILocalizationService localization) : base(localization)
     {
         this.overview = overview;
+        Files = files;
         OpenAccountCommand = new RelayCommand<AccountViewModel>(account => openAccount(account!));
         OpenFolderCommand = new RelayCommand<SyncPairViewModel>(pair => openFolder(pair!));
         overview.PropertyChanged += OnOverviewChanged;
+        files.PropertyChanged += (_, _) => OnPropertyChanged(nameof(IsEmpty));
         Refresh();
     }
 
@@ -33,8 +36,11 @@ public sealed class SearchResultsViewModel : LocalizedObservableObject
         get => searchText;
         set
         {
-            if (SetProperty(ref searchText, value ?? string.Empty))
-                Refresh();
+            if (!SetProperty(ref searchText, value ?? string.Empty))
+                return;
+
+            Refresh();
+            _ = Files.SetTextAsync(searchText);
         }
     }
 
@@ -44,14 +50,17 @@ public sealed class SearchResultsViewModel : LocalizedObservableObject
     /// <summary>The folders (sync pairs) matching the search.</summary>
     public IReadOnlyList<SyncPairViewModel> Folders { get; private set; } = [];
 
+    /// <summary>The classified files matching the search text and the selected chips.</summary>
+    public FileSearchViewModel Files { get; }
+
     /// <summary>Opens the account picked from the results.</summary>
     public IRelayCommand<AccountViewModel> OpenAccountCommand { get; }
 
     /// <summary>Opens the folder picked from the results.</summary>
     public IRelayCommand<SyncPairViewModel> OpenFolderCommand { get; }
 
-    /// <summary>Whether nothing matches.</summary>
-    public bool IsEmpty => Accounts.Count == 0 && Folders.Count == 0;
+    /// <summary>Whether nothing matches: no account, folder or file.</summary>
+    public bool IsEmpty => Accounts.Count == 0 && Folders.Count == 0 && !Files.HasRows && !Files.IsLoading && !Files.IsFailed;
 
     /// <summary>The search box placeholder.</summary>
     public string PlaceholderText => Localization.GetLocal("Search.Placeholder");
