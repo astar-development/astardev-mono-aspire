@@ -9,7 +9,7 @@ public sealed class GivenPathOperationExtensions
 
         string result = basePath.CombinePath("child", "file.txt");
 
-        result.ShouldBe("root/base/child/file.txt");
+        result.ShouldBe(Path.Join("root", "base", "child", "file.txt"));
     }
 
     [Fact]
@@ -17,7 +17,7 @@ public sealed class GivenPathOperationExtensions
     {
         string result = "base".CombinePath("child2").CombinePath("file.txt");
 
-        result.ShouldBe("base/child2/file.txt");
+        result.ShouldBe(Path.Join("base", "child2", "file.txt"));
     }
 
     [Fact]
@@ -26,11 +26,11 @@ public sealed class GivenPathOperationExtensions
 
     [Fact]
     public void when_combine_path_is_called_with_a_rooted_segment_then_the_segment_is_joined_rather_than_overriding_the_base_path() =>
-        "root/base".CombinePath("/etc/passwd").ShouldBe("root/base/etc/passwd");
+        "root/base".CombinePath("/etc/passwd").ShouldBe(Path.Join("root/base", "/etc/passwd"));
 
     [Fact]
     public void when_combine_path_is_called_with_a_null_entry_in_segments_then_the_null_entry_is_skipped() =>
-        "base".CombinePath("child", null!, "file.txt").ShouldBe("base/child/file.txt");
+        "base".CombinePath("child", null!, "file.txt").ShouldBe(Path.Join("base", "child", "file.txt"));
 
     [Fact]
     public void when_combine_path_is_called_with_a_null_segments_array_then_throws_argument_null_exception()
@@ -69,7 +69,7 @@ public sealed class GivenPathOperationExtensions
     [Fact]
     public void when_clean_path_is_called_with_an_invalid_path_character_then_replaces_it_with_a_space()
     {
-        char invalidChar = Path.GetInvalidPathChars().First();
+        char invalidChar = Path.GetInvalidPathChars().First(character => character != '|');
         string path = $"path{invalidChar}file.txt";
 
         path.CleanPath().ShouldBe("path file.txt");

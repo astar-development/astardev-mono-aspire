@@ -20,7 +20,7 @@ public class WebRootShould
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.AStarDev_Web>(cancellationToken);
+        var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.AStarDev_AppHost>(cancellationToken);
         appHost.Services.AddLogging(logging =>
         {
             logging.SetMinimumLevel(LogLevel.Debug);

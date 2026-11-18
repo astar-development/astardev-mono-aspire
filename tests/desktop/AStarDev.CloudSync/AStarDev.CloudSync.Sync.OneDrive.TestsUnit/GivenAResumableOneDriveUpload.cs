@@ -444,11 +444,23 @@ public sealed class GivenAResumableOneDriveUpload : IDisposable
         var source = LargeFile();
         fixture.UploadSessions.Seed(fixture.Account, source, Saved(source));
         var puts = 0;
-        fixture.Graph.Respond = request => request.Method.Method switch
+        var statusChecks = 0;
+        using var bothResumed = new ManualResetEventSlim();
+        fixture.Graph.Respond = request =>
         {
-            "GET" => RecordingGraphHandler.Json(HttpStatusCode.OK, "{\"nextExpectedRanges\":[\"" + ConfirmedByRestart + "-\"]}"),
-            "PUT" => Interlocked.Increment(ref puts) == 1 ? RecordingGraphHandler.Json(HttpStatusCode.Created, ItemJson(source.Length)) : RecordingGraphHandler.Json(HttpStatusCode.Conflict, "{\"error\":{\"code\":\"nameAlreadyExists\"}}"),
-            _ => new HttpResponseMessage(HttpStatusCode.NoContent),
+            if (request.Method == HttpMethod.Get && Interlocked.Increment(ref statusChecks) == 2)
+                bothResumed.Set();
+
+            // Hold the first PUT until both passes have resumed, so neither finds the saved session already forgotten.
+            if (request.Method == HttpMethod.Put)
+                _ = bothResumed.Wait(TimeSpan.FromSeconds(10), CancellationToken);
+
+            return request.Method.Method switch
+            {
+                "GET" => RecordingGraphHandler.Json(HttpStatusCode.OK, "{\"nextExpectedRanges\":[\"" + ConfirmedByRestart + "-\"]}"),
+                "PUT" => Interlocked.Increment(ref puts) == 1 ? RecordingGraphHandler.Json(HttpStatusCode.Created, ItemJson(source.Length)) : RecordingGraphHandler.Json(HttpStatusCode.Conflict, "{\"error\":{\"code\":\"nameAlreadyExists\"}}"),
+                _ => new HttpResponseMessage(HttpStatusCode.NoContent),
+            };
         };
 
         var results = await Task.WhenAll(Enumerable.Range(0, 2).Select(_ => Task.Run(() => UploadAsync(source), CancellationToken)));
