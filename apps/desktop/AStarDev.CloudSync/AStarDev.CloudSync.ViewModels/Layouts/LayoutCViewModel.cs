@@ -2,6 +2,7 @@ using System.Windows.Input;
 using AStarDev.CloudSync.Accounts;
 using AStarDev.CloudSync.Sync;
 using AStarDev.CloudSync.ViewModels.Accounts;
+using AStarDev.CloudSync.ViewModels.Classification;
 using AStarDev.CloudSync.ViewModels.Common;
 using AStarDev.CloudSync.ViewModels.Overview;
 using AStarDev.CloudSync.ViewModels.Search;
@@ -21,15 +22,27 @@ public sealed class LayoutCViewModel : LocalizedObservableObject
     private Option<AccountId> selectedAccountId = Option.None<AccountId>();
     private IReadOnlyList<LayoutCAccountCardViewModel> allAccountCards = [];
     private string searchText = string.Empty;
+    private LayoutCPage page = LayoutCPageFactory.CreateDashboard();
 
     /// <summary>Creates the view model and follows the overview's changes.</summary>
     /// <param name="overview">The shared overview every layout binds to.</param>
     /// <param name="syncActions">Carries out the account and sync pair actions the user picks.</param>
+    /// <param name="classification">The Classification page, which also hosts the file search the results panel shows.</param>
     /// <param name="localization">Supplies the text and culture.</param>
-    public LayoutCViewModel(SyncOverviewViewModel overview, ISyncActions syncActions, ILocalizationService localization) : base(localization)
+    public LayoutCViewModel(SyncOverviewViewModel overview, ISyncActions syncActions, ClassificationPageViewModel classification, ILocalizationService localization) : base(localization)
     {
         Overview = overview;
         this.syncActions = syncActions;
+        Classification = classification;
+        Search = new SearchResultsViewModel(overview, OpenAccount, OpenFolder, classification.Files, localization);
+        Search.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(SearchResultsViewModel.SearchText))
+                SearchText = Search.SearchText;
+        };
+        classification.Tabs.Terms.FilesRequested += (_, term) => OpenTermFiles(term);
+        ShowClassificationCommand = new RelayCommand(ShowClassification);
+        ShowDashboardCommand = new RelayCommand(() => Show(LayoutCPageFactory.CreateDashboard()));
         SortOptions = [new LayoutCSortOptionViewModel(LayoutCSortOrderFactory.CreateNeedsAttentionFirst(), "LayoutC.Sort.NeedsAttentionFirst", localization), new LayoutCSortOptionViewModel(LayoutCSortOrderFactory.CreateByName(), "LayoutC.Sort.ByName", localization)];
         selectedSortOption = SortOptions[0];
         SelectAllPairsCommand = new RelayCommand(SelectAllPairs);
@@ -57,8 +70,37 @@ public sealed class LayoutCViewModel : LocalizedObservableObject
 
             ShowSearchedAccountCards();
             OnPropertyChanged(nameof(SyncPairs));
+            Search.SearchText = searchText;
+            ShowPageForSearchText();
         }
     }
+
+    /// <summary>The search results shown while the command box has text: accounts, folders and files, with category chips. Its text follows the command box and the other way round.</summary>
+    public SearchResultsViewModel Search { get; }
+
+    /// <summary>The Classification page: terms, suggestions and the reclassify button.</summary>
+    public ClassificationPageViewModel Classification { get; }
+
+    /// <summary>Whether the sync pair list and live activity are shown.</summary>
+    public bool IsDashboardShown => page is LayoutCPage.Dashboard;
+
+    /// <summary>Whether the search results are shown.</summary>
+    public bool IsSearchPageShown => page is LayoutCPage.Search;
+
+    /// <summary>Whether the Classification page is shown.</summary>
+    public bool IsClassificationPageShown => page is LayoutCPage.Classification;
+
+    /// <summary>The Classification button text.</summary>
+    public string ClassificationText => Localization.GetLocal("LayoutC.Classification");
+
+    /// <summary>The button text that returns to the dashboard.</summary>
+    public string DashboardText => Localization.GetLocal("LayoutC.Dashboard");
+
+    /// <summary>Shows the Classification page and reads the term list again.</summary>
+    public ICommand ShowClassificationCommand { get; }
+
+    /// <summary>Shows the dashboard.</summary>
+    public ICommand ShowDashboardCommand { get; }
 
     /// <summary>One card per account in the accounts strip that passes the search; selecting one shows only that account's sync pairs.</summary>
     public IReadOnlyList<LayoutCAccountCardViewModel> AccountCards { get; private set; } = [];
@@ -191,6 +233,49 @@ public sealed class LayoutCViewModel : LocalizedObservableObject
     private bool IsAccountShownBySearch(AccountViewModel account) => account.MatchesSearch(searchText) || Overview.SyncPairs.Any(pair => pair.AccountId == account.Id && pair.MatchesSearch(searchText));
 
     private bool IsShownBySearch(SyncPairViewModel pair) => pair.MatchesSearch(searchText) || Overview.Accounts.Any(account => account.Id == pair.AccountId && account.MatchesSearch(searchText));
+
+    private void ShowClassification()
+    {
+        Show(LayoutCPageFactory.CreateClassification());
+        _ = Classification.LoadCommand.ExecuteAsync(null);
+    }
+
+    private void OpenTermFiles(TermRowViewModel term)
+    {
+        Show(LayoutCPageFactory.CreateSearch());
+        _ = Search.Files.LoadCommand.ExecuteAsync(null);
+        _ = Search.Files.SelectTermAsync(term.Id, term.Text);
+    }
+
+    private void OpenAccount(AccountViewModel account) => OpenAccountOf(account.Id);
+
+    private void OpenFolder(SyncPairViewModel pair) => OpenAccountOf(pair.AccountId);
+
+    private void OpenAccountOf(AccountId accountId)
+    {
+        var card = allAccountCards.FirstOrDefault(candidate => candidate.Account.Id == accountId);
+
+        if (card is not null && !card.IsSelected)
+            SelectAccount(card);
+
+        Show(LayoutCPageFactory.CreateDashboard());
+    }
+
+    private void ShowPageForSearchText()
+    {
+        if (searchText.Trim().Length > 0)
+            Show(LayoutCPageFactory.CreateSearch());
+        else if (page is LayoutCPage.Search && !Search.Files.IsActive)
+            Show(LayoutCPageFactory.CreateDashboard());
+    }
+
+    private void Show(LayoutCPage shown)
+    {
+        page = shown;
+        OnPropertyChanged(nameof(IsDashboardShown));
+        OnPropertyChanged(nameof(IsSearchPageShown));
+        OnPropertyChanged(nameof(IsClassificationPageShown));
+    }
 
     private void SelectAccount(LayoutCAccountCardViewModel selected)
     {

@@ -44,7 +44,7 @@ public class GivenTheUnknownCountSnapshots
         Assert.SkipUnless(OperatingSystem.IsLinux(), Snapshot.LinuxOnlyReason);
         var overview = await CreateOverviewAsync();
 
-        Snapshot.ShouldMatchBaseline(new Window { Content = new LayoutCView { DataContext = new LayoutCViewModel(overview, new RecordingSyncActions(), TestData.CreateLocalization()) } }, ThemeOf(theme), $"layout-c-unknown-counts-{theme}");
+        Snapshot.ShouldMatchBaseline(new Window { Content = new LayoutCView { DataContext = new LayoutCViewModel(overview, new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization()) } }, ThemeOf(theme), $"layout-c-unknown-counts-{theme}");
     }
 
     private static ThemeVariant ThemeOf(string theme) => theme == "dark" ? ThemeVariant.Dark : ThemeVariant.Light;
