@@ -1,4 +1,5 @@
 using AStarDev.CloudSync.Overview;
+using AStarDev.CloudSync.TestHelpers.Classification;
 using AStarDev.CloudSync.TestHelpers.Common;
 using AStarDev.CloudSync.TestHelpers.Conflicts;
 using AStarDev.CloudSync.TestHelpers.Overview;
@@ -18,7 +19,7 @@ public class GivenALayoutBViewModel
     {
         var source = new CountingSyncOverviewSource(await TestData.CreateOverviewAsync());
         var overview = new SyncOverviewViewModel(source, TestData.CreateLocalization(), TestData.CreateTime(), NullLogger<SyncOverviewViewModel>.Instance);
-        var layout = new LayoutBViewModel(overview, TestData.CreateLocalPathFormatter(), new RecordingSyncActions(), TestData.CreateConflictListFactory(), TestData.CreateFolderSelectionFactory(), TestData.CreateActivityListFactory(), TestData.CreateLocalization());
+        var layout = new LayoutBViewModel(overview, TestData.CreateLocalPathFormatter(), new RecordingSyncActions(), TestData.CreateConflictListFactory(), TestData.CreateFolderSelectionFactory(), TestData.CreateActivityListFactory(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         await layout.ConnectProviderCommand.ExecuteAsync(null);
 
@@ -29,7 +30,7 @@ public class GivenALayoutBViewModel
     public async Task when_the_connect_provider_command_runs_then_an_account_is_added()
     {
         var syncActions = new RecordingSyncActions();
-        var layout = new LayoutBViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), TestData.CreateLocalPathFormatter(), syncActions, TestData.CreateConflictListFactory(), TestData.CreateFolderSelectionFactory(), TestData.CreateActivityListFactory(), TestData.CreateLocalization());
+        var layout = new LayoutBViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), TestData.CreateLocalPathFormatter(), syncActions, TestData.CreateConflictListFactory(), TestData.CreateFolderSelectionFactory(), TestData.CreateActivityListFactory(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         await layout.ConnectProviderCommand.ExecuteAsync(null);
 
@@ -119,7 +120,7 @@ public class GivenALayoutBViewModel
         var source = Substitute.For<ISyncOverviewSource>();
         source.GetOverviewAsync(Arg.Any<CancellationToken>()).Returns(SyncOverviewFactory.Create([], [], [], [], [], 0, Option.None<DateTimeOffset>()));
         var overview = new SyncOverviewViewModel(source, TestData.CreateLocalization(), TestData.CreateTime(), NullLogger<SyncOverviewViewModel>.Instance);
-        var layout = new LayoutBViewModel(overview, TestData.CreateLocalPathFormatter(), new RecordingSyncActions(), TestData.CreateConflictListFactory(), TestData.CreateFolderSelectionFactory(), TestData.CreateActivityListFactory(), TestData.CreateLocalization());
+        var layout = new LayoutBViewModel(overview, TestData.CreateLocalPathFormatter(), new RecordingSyncActions(), TestData.CreateConflictListFactory(), TestData.CreateFolderSelectionFactory(), TestData.CreateActivityListFactory(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         await overview.LoadAsync(TestContext.Current.CancellationToken);
 
@@ -303,7 +304,7 @@ public class GivenALayoutBViewModel
     private static async Task<LayoutBViewModel> CreateLoadedLayoutAsync()
     {
         var overview = new SyncOverviewViewModel(new PlaceholderSyncOverviewSource(TestData.CreateTime()), TestData.CreateLocalization(), TestData.CreateTime(), NullLogger<SyncOverviewViewModel>.Instance);
-        var layout = new LayoutBViewModel(overview, TestData.CreateLocalPathFormatter(), new RecordingSyncActions(), TestData.CreateConflictListFactory(), TestData.CreateFolderSelectionFactory(), TestData.CreateActivityListFactory(), TestData.CreateLocalization());
+        var layout = new LayoutBViewModel(overview, TestData.CreateLocalPathFormatter(), new RecordingSyncActions(), TestData.CreateConflictListFactory(), TestData.CreateFolderSelectionFactory(), TestData.CreateActivityListFactory(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         await overview.LoadAsync(TestContext.Current.CancellationToken);
 
         return layout;
@@ -318,12 +319,103 @@ public class GivenALayoutBViewModel
         var reader = new FakeAttentionReader();
         reader.Add(data.Accounts[0].Id, AttentionItems.CreateConflict(data.Accounts[0].Id, "Docs/a.docx"));
         reader.Add(data.Accounts[1].Id, AttentionItems.CreateConflict(data.Accounts[1].Id, "Docs/b.docx"));
-        var layout = new LayoutBViewModel(overview, TestData.CreateLocalPathFormatter(), new RecordingSyncActions(), TestData.CreateConflictListFactory(new FixedAccountsSource([.. data.Accounts]), reader), TestData.CreateFolderSelectionFactory(), TestData.CreateActivityListFactory(), TestData.CreateLocalization());
+        var layout = new LayoutBViewModel(overview, TestData.CreateLocalPathFormatter(), new RecordingSyncActions(), TestData.CreateConflictListFactory(new FixedAccountsSource([.. data.Accounts]), reader), TestData.CreateFolderSelectionFactory(), TestData.CreateActivityListFactory(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         var detail = layout.Detail.ShouldBeOfType<AccountDetailViewModel>();
 
         detail.SelectedTabIndex = AccountDetailViewModel.ConflictsTabIndex;
         await detail.Conflicts.RefreshCommand.ExecutionTask!;
 
         detail.Conflicts.Groups.Select(group => group.Items.Single().PathText).ShouldBe(["Docs/a.docx"]);
+    }
+
+    private static async Task<LayoutBViewModel> CreateAsync(ViewModels.Classification.ClassificationPageViewModel? page = null) =>
+        new(await TestData.CreateLoadedOverviewViewModelAsync(), TestData.CreateLocalPathFormatter(), new RecordingSyncActions(), TestData.CreateConflictListFactory(), TestData.CreateFolderSelectionFactory(), TestData.CreateActivityListFactory(), page ?? TestData.CreateClassificationPage(), TestData.CreateLocalization());
+
+    [Fact]
+    public async Task when_the_sidebar_search_has_text_then_the_search_results_are_shown_with_the_same_text()
+    {
+        var layout = await CreateAsync();
+
+        layout.SearchText = "recipes";
+
+        (layout.IsSearchPageShown, layout.IsAccountPageShown, layout.Search.SearchText).ShouldBe((true, false, "recipes"));
+    }
+
+    [Fact]
+    public async Task when_the_sidebar_search_is_cleared_then_the_account_detail_is_shown_again()
+    {
+        var layout = await CreateAsync();
+        layout.SearchText = "recipes";
+
+        layout.SearchText = string.Empty;
+
+        (layout.IsSearchPageShown, layout.IsAccountPageShown).ShouldBe((false, true));
+    }
+
+    [Fact]
+    public async Task when_the_results_box_changes_then_the_sidebar_search_follows()
+    {
+        var layout = await CreateAsync();
+
+        layout.Search.SearchText = "recipes";
+
+        (layout.SearchText, layout.IsSearchPageShown).ShouldBe(("recipes", true));
+    }
+
+    [Fact]
+    public async Task when_an_account_is_opened_from_the_results_then_its_detail_is_shown()
+    {
+        var layout = await CreateAsync();
+        layout.SearchText = "archive@";
+
+        layout.Search.OpenAccountCommand.Execute(layout.Search.Accounts.Single());
+
+        (layout.IsAccountPageShown, ((AccountDetailViewModel)layout.Detail).Account.Name).ShouldBe((true, "Archive"));
+    }
+
+    [Fact]
+    public async Task when_a_folder_is_opened_from_the_results_then_the_folders_tab_of_its_account_is_shown()
+    {
+        var layout = await CreateAsync();
+        layout.SearchText = "recipes";
+
+        layout.Search.OpenFolderCommand.Execute(layout.Search.Folders.Single());
+
+        (layout.IsAccountPageShown, ((AccountDetailViewModel)layout.Detail).SelectedTabIndex).ShouldBe((true, AccountDetailViewModel.FoldersTabIndex));
+    }
+
+    [Fact]
+    public async Task when_an_account_is_picked_in_the_tree_while_searching_then_the_account_detail_is_shown()
+    {
+        var layout = await CreateAsync();
+        layout.SearchText = "e";
+        var other = layout.ProviderGroups.SelectMany(group => group.Accounts).First(account => !ReferenceEquals(account, layout.SelectedItem));
+
+        layout.SelectedItem = other;
+
+        (layout.IsAccountPageShown, layout.SelectedItem).ShouldBe((true, other));
+    }
+
+    [Fact]
+    public async Task when_classification_is_chosen_then_its_page_is_shown_and_the_term_list_is_read()
+    {
+        var layout = await CreateAsync();
+
+        layout.ShowClassificationCommand.Execute(null);
+
+        (layout.IsClassificationPageShown, layout.IsAccountPageShown, layout.Classification.Tabs.Terms.LoadCommand.ExecutionTask is not null, layout.ClassificationText).ShouldBe((true, false, true, "Classification"));
+    }
+
+    [Fact]
+    public async Task when_a_term_asks_for_its_files_then_the_search_results_are_shown_with_the_term_chip_selected()
+    {
+        var page = TestData.CreateClassificationPage(new FakeTermStore(ClassificationTestData.Term("teal", ClassificationTestData.NewCategoryId())));
+        var layout = await CreateAsync(page);
+        await page.Tabs.Terms.LoadCommand.ExecuteAsync(null);
+
+        page.Tabs.Terms.OpenFilesCommand.Execute(page.Tabs.Terms.Rows.Single());
+
+        layout.IsSearchPageShown.ShouldBeTrue();
+        layout.Search.Files.Chips.Select(chip => (chip.Label, chip.IsSelected)).ShouldBe([("teal", true)]);
     }
 }

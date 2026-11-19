@@ -4,7 +4,9 @@
              xmlns:activity="using:AStarDev.CloudSync.Activity"
              xmlns:displaySettings="using:AStarDev.CloudSync.DisplaySettings"
              xmlns:overview="using:AStarDev.CloudSync.Overview"
+             xmlns:classification="using:AStarDev.CloudSync.Classification"
              xmlns:common="using:AStarDev.CloudSync.Common"
+             xmlns:search="using:AStarDev.CloudSync.Search"
              xmlns:conflicts="using:AStarDev.CloudSync.Conflicts"
              xmlns:folderSelection="using:AStarDev.CloudSync.FolderSelection"
              xmlns:vmAccounts="using:AStarDev.CloudSync.ViewModels.Accounts"
@@ -97,7 +99,7 @@
                 Background="{DynamicResource CloudSyncPanelBrush}"
                 BorderBrush="{DynamicResource CloudSyncBorderBrush}"
                 BorderThickness="0,0,1,0">
-            <Grid RowDefinitions="Auto,*,Auto,Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid RowDefinitions="Auto,*,Auto,Auto,Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
                 <TextBox Grid.Row="0"
                          Margin="14"
@@ -133,13 +135,21 @@
 
                 <Button Grid.Row="2"
                         Classes="link"
+                        Margin="16,4,16,0"
+                        Height="40"
+                        HorizontalAlignment="Stretch"
+                        Content="{Binding ClassificationText}"
+                        Command="{Binding ShowClassificationCommand}" />
+
+                <Button Grid.Row="3"
+                        Classes="link"
                         Margin="16,4,16,12"
                         Height="40"
                         HorizontalAlignment="Stretch"
                         Content="{Binding ConnectProviderText}"
                         Command="{Binding ConnectProviderCommand}" />
 
-                <Border Grid.Row="3"
+                <Border Grid.Row="4"
                         Padding="14,4"
                         BorderBrush="{DynamicResource CloudSyncBorderBrush}"
                         BorderThickness="0,1,0,0">
@@ -156,6 +166,7 @@
 
         <ContentControl Grid.Column="1"
                         Content="{Binding Detail}"
+                        IsVisible="{Binding IsAccountPageShown}"
                         HorizontalContentAlignment="Stretch"
                         VerticalContentAlignment="Stretch">
             <ContentControl.DataTemplates>
@@ -304,5 +315,27 @@
                 </DataTemplate>
             </ContentControl.DataTemplates>
         </ContentControl>
+
+        <Border Grid.Column="1"
+                Margin="20"
+                Padding="24"
+                CornerRadius="8"
+                BorderThickness="1"
+                Background="{DynamicResource CloudSyncSurfaceBrush}"
+                BorderBrush="{DynamicResource CloudSyncBorderBrush}"
+                IsVisible="{Binding IsSearchPageShown}">
+            <search:SearchResultsContent DataContext="{Binding Search}" />
+        </Border>
+
+        <Border Grid.Column="1"
+                Margin="20"
+                Padding="24"
+                CornerRadius="8"
+                BorderThickness="1"
+                Background="{DynamicResource CloudSyncSurfaceBrush}"
+                BorderBrush="{DynamicResource CloudSyncBorderBrush}"
+                IsVisible="{Binding IsClassificationPageShown}">
+            <classification:ClassificationPageContent DataContext="{Binding Classification}" />
+        </Border>
     </Grid>
 </UserControl>

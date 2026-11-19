@@ -30,7 +30,11 @@ public sealed class ClassificationTermListViewModel : LocalizedObservableObject
         LoadCommand = new AsyncRelayCommand(LoadAsync);
         SortCommand = new RelayCommand<TermSortColumn>(column => Sort(column!));
         ToggleIgnoredCommand = new AsyncRelayCommand<TermRowViewModel>(ToggleAsync);
+        OpenFilesCommand = new RelayCommand<TermRowViewModel>(row => FilesRequested?.Invoke(this, row!));
     }
+
+    /// <summary>Raised with the term whose files the user asked to see.</summary>
+    public event EventHandler<TermRowViewModel>? FilesRequested;
 
     /// <summary>Where loading is.</summary>
     public TermListLoadState State => state;
@@ -97,6 +101,9 @@ public sealed class ClassificationTermListViewModel : LocalizedObservableObject
     /// <summary>The file count column header.</summary>
     public string FileCountHeaderText => Localization.GetLocal("Classification.Terms.Column.FileCount");
 
+    /// <summary>The label of the button that shows a term's files.</summary>
+    public string OpenFilesText => Localization.GetLocal("Classification.Terms.OpenFiles");
+
     /// <summary>The ignored column header.</summary>
     public string IgnoredHeaderText => Localization.GetLocal("Classification.Terms.Column.Ignored");
 
@@ -108,6 +115,9 @@ public sealed class ClassificationTermListViewModel : LocalizedObservableObject
 
     /// <summary>Ignores an active term or restores an ignored one. Never deletes.</summary>
     public IAsyncRelayCommand<TermRowViewModel> ToggleIgnoredCommand { get; }
+
+    /// <summary>Asks to see the files of a term; the host switches to the search with the term's chip selected.</summary>
+    public IRelayCommand<TermRowViewModel> OpenFilesCommand { get; }
 
     private async Task LoadAsync(CancellationToken cancellationToken)
     {

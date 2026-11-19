@@ -1,3 +1,4 @@
+using AStarDev.CloudSync.ViewModels.Search;
 using AStarDev.Localization;
 using CommunityToolkit.Mvvm.Input;
 
@@ -6,14 +7,18 @@ namespace AStarDev.CloudSync.ViewModels.Classification;
 /// <summary>The classification page: a header with the reclassify button above the term list and suggestions tabs.</summary>
 /// <param name="tabs">The term list and suggestions tabs.</param>
 /// <param name="reclassify">The reclassify button.</param>
+/// <param name="files">The file search shared by the search page and the term list.</param>
 /// <param name="localization">Supplies the text and culture.</param>
-public sealed class ClassificationPageViewModel(ClassificationTabsViewModel tabs, ReclassifyViewModel reclassify, ILocalizationService localization) : LocalizedObservableObject(localization)
+public sealed class ClassificationPageViewModel(ClassificationTabsViewModel tabs, ReclassifyViewModel reclassify, FileSearchViewModel files, ILocalizationService localization) : LocalizedObservableObject(localization)
 {
     /// <summary>The term list and suggestions tabs.</summary>
     public ClassificationTabsViewModel Tabs { get; } = tabs;
 
     /// <summary>The reclassify button.</summary>
     public ReclassifyViewModel Reclassify { get; } = reclassify;
+
+    /// <summary>The classified file search; the term list's "open files" selects a term chip on it.</summary>
+    public FileSearchViewModel Files { get; } = files;
 
     /// <summary>The page heading.</summary>
     public string TitleText => Localization.GetLocal("Classification.Page.Title");

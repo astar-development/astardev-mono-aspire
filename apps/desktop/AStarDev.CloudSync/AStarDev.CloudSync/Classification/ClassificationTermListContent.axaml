@@ -28,7 +28,7 @@
                      Text="{Binding FilterText}"
                      PlaceholderText="{Binding FilterPlaceholderText}"
                      AutomationProperties.Name="{Binding FilterPlaceholderText}" />
-            <Grid ColumnDefinitions="*,*,110,80,230" ColumnSpacing="8">
+            <Grid ColumnDefinitions="*,*,110,80,330" ColumnSpacing="8">
                 <Button Grid.Column="0" Name="TermHeader" Classes="term-header" Content="{Binding TermHeaderText}" />
                 <Button Grid.Column="1" Name="CategoryHeader" Classes="term-header" Content="{Binding CategoryHeaderText}" />
                 <Button Grid.Column="2" Name="SourceHeader" Classes="term-header" Content="{Binding SourceHeaderText}" />
@@ -59,13 +59,17 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vmClassification:TermRowViewModel">
                             <StackPanel Margin="0,0,0,6">
-                                <Grid ColumnDefinitions="*,*,110,80,230" ColumnSpacing="8">
+                                <Grid ColumnDefinitions="*,*,110,80,330" ColumnSpacing="8">
                                     <TextBlock Grid.Column="0" Text="{Binding Text}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
                                     <TextBlock Grid.Column="1" Classes="muted" Text="{Binding CategoryName}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
                                     <TextBlock Grid.Column="2" Classes="muted" Text="{Binding SourceText}" VerticalAlignment="Center" />
                                     <TextBlock Grid.Column="3" Text="{Binding FileCountText}" VerticalAlignment="Center" />
                                     <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="8">
                                         <TextBlock Classes="muted" Text="{Binding StatusText}" VerticalAlignment="Center" />
+                                        <Button Content="{Binding $parent[UserControl].((vmClassification:ClassificationTermListViewModel)DataContext).OpenFilesText}"
+                                                Command="{Binding $parent[UserControl].((vmClassification:ClassificationTermListViewModel)DataContext).OpenFilesCommand}"
+                                                CommandParameter="{Binding}"
+                                                AutomationProperties.Name="{Binding $parent[UserControl].((vmClassification:ClassificationTermListViewModel)DataContext).OpenFilesText}" />
                                         <Button Content="{Binding ToggleText}"
                                                 Command="{Binding $parent[UserControl].((vmClassification:ClassificationTermListViewModel)DataContext).ToggleIgnoredCommand}"
                                                 CommandParameter="{Binding}"

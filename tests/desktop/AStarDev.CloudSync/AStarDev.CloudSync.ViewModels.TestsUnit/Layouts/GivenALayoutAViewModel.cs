@@ -2,6 +2,7 @@ using AStarDev.CloudSync.Accounts;
 using AStarDev.CloudSync.Overview;
 using AStarDev.CloudSync.Sync;
 using AStarDev.CloudSync.TestHelpers.Accounts;
+using AStarDev.CloudSync.TestHelpers.Classification;
 using AStarDev.CloudSync.TestHelpers.Common;
 using AStarDev.CloudSync.TestHelpers.Conflicts;
 using AStarDev.CloudSync.TestHelpers.Overview;
@@ -413,5 +414,19 @@ public class GivenALayoutAViewModel
         layout.VisibleAccounts.Single(card => card.IsSelected).Account.Id.ShouldBe(recipes.AccountId);
         layout.IsFoldersPageShown.ShouldBeTrue();
         tree.RequestedAccounts.ShouldBe([recipes.AccountId]);
+    }
+
+    [Fact]
+    public async Task when_a_term_asks_for_its_files_then_the_search_page_is_shown_with_the_term_chip_selected()
+    {
+        var term = ClassificationTestData.Term("teal", ClassificationTestData.NewCategoryId());
+        var page = TestData.CreateClassificationPage(new FakeTermStore(term));
+        var layout = new LayoutAViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateConflictListFactory(), TestData.CreateFolderSelectionFactory(), TestData.CreateActivityListFactory(), page, TestData.CreateLocalization());
+        await page.Tabs.Terms.LoadCommand.ExecuteAsync(null);
+
+        page.Tabs.Terms.OpenFilesCommand.Execute(page.Tabs.Terms.Rows.Single());
+
+        (layout.IsSearchPageShown, layout.Search.Files.IsActive).ShouldBe((true, true));
+        layout.Search.Files.Chips.Select(chip => (chip.Label, chip.IsSelected)).ShouldBe([("teal", true)]);
     }
 }

@@ -105,7 +105,7 @@ public class GivenALayoutBView
         var texts = window.GetVisualDescendants().OfType<TextBlock>().Select(text => text.Text).ToList();
         window.Content.ShouldBeOfType<LayoutBView>().DataContext.ShouldBeOfType<LayoutBViewModel>().SearchText.ShouldBe("holiday");
         texts.ShouldContain("OneDrive / Photos");
-        texts.ShouldContain("Camera");
+        texts.ShouldContain("Holiday photos");
         texts.ShouldNotContain("Documents");
     }
 
@@ -126,7 +126,7 @@ public class GivenALayoutBView
     private static async Task<Window> CreateShownWindowAsync()
     {
         var overview = await TestData.CreateLoadedOverviewViewModelAsync();
-        var window = new Window { Width = 1280, Height = 800, Content = new LayoutBView { DataContext = new LayoutBViewModel(overview, TestData.CreateLocalPathFormatter(), new RecordingSyncActions(), TestData.CreateConflictListFactory(), TestData.CreateFolderSelectionFactory(), TestData.CreateActivityListFactory(), TestData.CreateLocalization()) } };
+        var window = new Window { Width = 1280, Height = 800, Content = new LayoutBView { DataContext = new LayoutBViewModel(overview, TestData.CreateLocalPathFormatter(), new RecordingSyncActions(), TestData.CreateConflictListFactory(), TestData.CreateFolderSelectionFactory(), TestData.CreateActivityListFactory(), TestData.CreateClassificationPage(), TestData.CreateLocalization()) } };
         window.Show();
         Dispatcher.UIThread.RunJobs();
 

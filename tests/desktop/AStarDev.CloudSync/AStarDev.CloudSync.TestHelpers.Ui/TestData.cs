@@ -21,6 +21,7 @@ using AStarDev.CloudSync.ViewModels.Layouts;
 using AStarDev.CloudSync.ViewModels.SyncRestart;
 using AStarDev.CloudSync.ViewModels.Tray;
 using AStarDev.CloudSync.ViewModels.Overview;
+using AStarDev.CloudSync.ViewModels.Search;
 using AStarDev.FunctionalParadigm;
 using AStarDev.Localization;
 using Microsoft.Extensions.Logging;
@@ -114,8 +115,12 @@ public static class TestData
         var localization = CreateLocalization();
         var syncActions = new RecordingSyncActions();
 
-        return new MainWindowViewModel(localization, displaySettings, new MainWindowLayouts(new LayoutAViewModel(overview, syncActions, CreateConflictListFactory(), CreateFolderSelectionFactory(), CreateActivityListFactory(), CreateClassificationPage(), localization), new LayoutBViewModel(overview, CreateLocalPathFormatter(), syncActions, CreateConflictListFactory(), CreateFolderSelectionFactory(), CreateActivityListFactory(), localization), new LayoutCViewModel(overview, syncActions, localization)), new MainWindowDialogs(addAccount, CreateAccountDialog(new FakeAccountActions()), folderSelection, new ConfirmSyncRestartViewModel(localization), CreateConflictList(), new DatabaseHealthBannerViewModel(new FakeDatabaseHealthGate(), new ImmediateUiDispatcher(), localization), new ConfirmQuitViewModel(localization)), CreateAppVersion());
+        return new MainWindowViewModel(localization, displaySettings, new MainWindowLayouts(new LayoutAViewModel(overview, syncActions, CreateConflictListFactory(), CreateFolderSelectionFactory(), CreateActivityListFactory(), CreateClassificationPage(), localization), new LayoutBViewModel(overview, CreateLocalPathFormatter(), syncActions, CreateConflictListFactory(), CreateFolderSelectionFactory(), CreateActivityListFactory(), CreateClassificationPage(), localization), new LayoutCViewModel(overview, syncActions, localization)), new MainWindowDialogs(addAccount, CreateAccountDialog(new FakeAccountActions()), folderSelection, new ConfirmSyncRestartViewModel(localization), CreateConflictList(), new DatabaseHealthBannerViewModel(new FakeDatabaseHealthGate(), new ImmediateUiDispatcher(), localization), new ConfirmQuitViewModel(localization)), CreateAppVersion());
     }
+
+    public static FileSearchViewModel CreateFileSearch() => CreateFileSearch(new FakeClassifiedFileSearch(), new FakeFileRevealer());
+
+    public static FileSearchViewModel CreateFileSearch(FakeClassifiedFileSearch search, FakeFileRevealer revealer, params ClassificationCategory[] categories) => new(search, new FakeCategoryStore(categories), revealer, CreateLocalization());
 
     public static IFolderSelectionFactory CreateFolderSelectionFactory() => CreateFolderSelectionFactory(new FakeFolderTreeSource());
 
@@ -125,14 +130,18 @@ public static class TestData
 
     public static ClassificationPageViewModel CreateClassificationPage(FakeClassificationReclassifier reclassifier, FakeReclassifyFreshnessCheck freshness) => CreateClassificationPage(reclassifier, freshness, new ReclassifyProgressSource());
 
-    public static ClassificationPageViewModel CreateClassificationPage(FakeClassificationReclassifier reclassifier, FakeReclassifyFreshnessCheck freshness, IReclassifyProgressSource progressSource)
+    public static ClassificationPageViewModel CreateClassificationPage(FakeTermStore termStore) => CreateClassificationPage(new FakeClassificationReclassifier(), new FakeReclassifyFreshnessCheck(), new ReclassifyProgressSource(), termStore);
+
+    public static ClassificationPageViewModel CreateClassificationPage(FakeClassificationReclassifier reclassifier, FakeReclassifyFreshnessCheck freshness, IReclassifyProgressSource progressSource) => CreateClassificationPage(reclassifier, freshness, progressSource, new FakeTermStore());
+
+    public static ClassificationPageViewModel CreateClassificationPage(FakeClassificationReclassifier reclassifier, FakeReclassifyFreshnessCheck freshness, IReclassifyProgressSource progressSource, FakeTermStore termStore)
     {
         var localization = CreateLocalization();
         var categories = new FakeCategoryStore();
-        var terms = new ClassificationTermListViewModel(new FakeTermStore(), categories, new FakeFileClassificationStore(), localization);
+        var terms = new ClassificationTermListViewModel(termStore, categories, new FakeFileClassificationStore(), localization);
         var suggestions = new ClassificationSuggestionsViewModel(new FakeClassificationSuggestions(), categories, localization);
 
-        return new ClassificationPageViewModel(new ClassificationTabsViewModel(terms, suggestions, localization), new ReclassifyViewModel(reclassifier, reclassifier, progressSource, new ImmediateUiDispatcher(), freshness, terms, localization), localization);
+        return new ClassificationPageViewModel(new ClassificationTabsViewModel(terms, suggestions, localization), new ReclassifyViewModel(reclassifier, reclassifier, progressSource, new ImmediateUiDispatcher(), freshness, terms, localization), CreateFileSearch(), localization);
     }
 
     public static IFolderSelectionFactory CreateFolderSelectionFactory(FakeFolderTreeSource tree) => new FolderSelectionFactory(tree, new FakeSelectionRuleReader(), new FakeSelectionRuleWriter(), new SyncSelectionEvaluator(), new FakeSyncPairReader(), new InMemoryAccountStore(), CreateLocalization());
