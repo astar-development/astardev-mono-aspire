@@ -23,6 +23,9 @@ public sealed record UploadPassSummary
     /// <summary>Existing remote folders linked, and files both sides added that were linked because size and hash match.</summary>
     public int Linked => Outcomes.OfType<UploadItemOutcome.Linked>().Count();
 
+    /// <summary>Files closed as identical conflicts: both sides held the same content.</summary>
+    public int LinkedFiles => Outcomes.OfType<UploadItemOutcome.Linked>().Count(outcome => outcome.IsFile);
+
     /// <summary>Remote items deleted, or already gone.</summary>
     public int Removed => Outcomes.OfType<UploadItemOutcome.RemovedRemotely>().Count();
 

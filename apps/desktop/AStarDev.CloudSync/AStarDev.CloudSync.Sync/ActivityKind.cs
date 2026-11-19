@@ -67,6 +67,18 @@ public abstract record ActivityKind
         public string FileName { get; }
     }
 
+    /// <summary>Conflicts whose local and cloud content were identical were closed without asking the user.</summary>
+    public sealed record ConflictsAutoClosed : ActivityKind
+    {
+        internal ConflictsAutoClosed(int count)
+        {
+            Count = count;
+        }
+
+        /// <summary>The number of conflicts closed.</summary>
+        public int Count { get; }
+    }
+
     /// <summary>The account signed in.</summary>
     public sealed record Authenticated : ActivityKind
     {

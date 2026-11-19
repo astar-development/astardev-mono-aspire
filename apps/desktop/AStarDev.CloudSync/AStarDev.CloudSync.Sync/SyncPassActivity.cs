@@ -53,6 +53,10 @@ internal sealed class SyncPassActivity(IActivityLogWriter writer, TimeProvider t
         if (deleted > 0)
             kinds.Add(ActivityKindFactory.CreateDeleted(deleted));
 
+        var closed = download.LinkedExisting + upload.LinkedFiles;
+        if (closed > 0)
+            kinds.Add(ActivityKindFactory.CreateConflictsAutoClosed(closed));
+
         return kinds;
     }
 

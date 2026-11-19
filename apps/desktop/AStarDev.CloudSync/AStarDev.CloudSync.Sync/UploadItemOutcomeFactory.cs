@@ -10,7 +10,10 @@ public static class UploadItemOutcomeFactory
     public static UploadItemOutcome CreateFolderCreated(RelativeSyncPath path) => new UploadItemOutcome.FolderCreated(path);
 
     /// <summary>Creates the <see cref="UploadItemOutcome.Linked"/> case.</summary>
-    public static UploadItemOutcome CreateLinked(RelativeSyncPath path) => new UploadItemOutcome.Linked(path);
+    public static UploadItemOutcome CreateLinked(RelativeSyncPath path) => new UploadItemOutcome.Linked(path, false);
+
+    /// <summary>Creates the <see cref="UploadItemOutcome.Linked"/> case for a file whose local and cloud content are identical.</summary>
+    public static UploadItemOutcome CreateLinkedFile(RelativeSyncPath path) => new UploadItemOutcome.Linked(path, true);
 
     /// <summary>Creates the <see cref="UploadItemOutcome.RemovedRemotely"/> case.</summary>
     public static UploadItemOutcome CreateRemovedRemotely(RelativeSyncPath path) => new UploadItemOutcome.RemovedRemotely(path);
