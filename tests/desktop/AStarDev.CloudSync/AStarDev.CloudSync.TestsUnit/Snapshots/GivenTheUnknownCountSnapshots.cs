@@ -33,7 +33,7 @@ public class GivenTheUnknownCountSnapshots
         Assert.SkipUnless(OperatingSystem.IsLinux(), Snapshot.LinuxOnlyReason);
         var overview = await CreateOverviewAsync();
 
-        Snapshot.ShouldMatchBaseline(new Window { Content = new LayoutBView { DataContext = new LayoutBViewModel(overview, TestData.CreateLocalPathFormatter(), new RecordingSyncActions(), TestData.CreateConflictListFactory(), TestData.CreateFolderSelectionFactory(), TestData.CreateActivityListFactory(), TestData.CreateLocalization()) } }, ThemeOf(theme), $"layout-b-unknown-counts-{theme}");
+        Snapshot.ShouldMatchBaseline(new Window { Content = new LayoutBView { DataContext = new LayoutBViewModel(overview, TestData.CreateLocalPathFormatter(), new RecordingSyncActions(), TestData.CreateConflictListFactory(), TestData.CreateFolderSelectionFactory(), TestData.CreateActivityListFactory(), TestData.CreateClassificationPage(), TestData.CreateLocalization()) } }, ThemeOf(theme), $"layout-b-unknown-counts-{theme}");
     }
 
     [AvaloniaTheory]
