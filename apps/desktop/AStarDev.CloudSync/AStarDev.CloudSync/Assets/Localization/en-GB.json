@@ -79,6 +79,8 @@
   "Activity.Deleted.One": "Deleted 1 file",
   "Activity.Deleted.Many": "Deleted {0} files",
   "Activity.Conflict": "Conflict: {0}",
+  "Activity.ConflictsAutoClosed.One": "1 identical conflict closed",
+  "Activity.ConflictsAutoClosed.Many": "{0} identical conflicts closed",
   "Activity.Authenticated": "Authenticated",
   "Activity.NothingChanged": "Nothing changed",
   "Activity.List.Title": "Activity",

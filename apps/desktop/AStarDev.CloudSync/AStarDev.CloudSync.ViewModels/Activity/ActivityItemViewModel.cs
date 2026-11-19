@@ -30,6 +30,8 @@ public sealed class ActivityItemViewModel(ActivityEntry entry, string accountNam
         ActivityKind.Downloaded downloaded => Localization.GetLocal("Activity.Downloaded.Many", downloaded.FileCount.ToString("N0", Localization.CurrentCulture)),
         ActivityKind.Deleted { FileCount: 1 } => Localization.GetLocal("Activity.Deleted.One"),
         ActivityKind.Deleted deleted => Localization.GetLocal("Activity.Deleted.Many", deleted.FileCount.ToString("N0", Localization.CurrentCulture)),
+        ActivityKind.ConflictsAutoClosed { Count: 1 } => Localization.GetLocal("Activity.ConflictsAutoClosed.One"),
+        ActivityKind.ConflictsAutoClosed closed => Localization.GetLocal("Activity.ConflictsAutoClosed.Many", closed.Count.ToString("N0", Localization.CurrentCulture)),
         ActivityKind.ConflictDetected conflict => Localization.GetLocal("Activity.Conflict", conflict.FileName),
         ActivityKind.NothingChanged => Localization.GetLocal("Activity.NothingChanged"),
         ActivityKind.SyncInterrupted => Localization.GetLocal("Activity.SyncInterrupted", accountName),

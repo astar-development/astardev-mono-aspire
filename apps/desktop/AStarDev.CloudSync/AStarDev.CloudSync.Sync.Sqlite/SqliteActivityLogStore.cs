@@ -57,6 +57,10 @@ internal sealed class SqliteActivityLogStore(IDbContextFactory<SyncDbContext> db
                 row.Kind = nameof(ActivityKind.Deleted);
                 row.FileCount = deleted.FileCount;
                 break;
+            case ActivityKind.ConflictsAutoClosed closed:
+                row.Kind = nameof(ActivityKind.ConflictsAutoClosed);
+                row.FileCount = closed.Count;
+                break;
             case ActivityKind.ConflictDetected conflict:
                 row.Kind = nameof(ActivityKind.ConflictDetected);
                 row.FileName = conflict.FileName;
@@ -94,6 +98,7 @@ internal sealed class SqliteActivityLogStore(IDbContextFactory<SyncDbContext> db
         nameof(ActivityKind.Uploaded) => ActivityKindFactory.CreateUploaded(row.FileCount, row.Bytes),
         nameof(ActivityKind.Downloaded) => ActivityKindFactory.CreateDownloaded(row.FileCount),
         nameof(ActivityKind.Deleted) => ActivityKindFactory.CreateDeleted(row.FileCount),
+        nameof(ActivityKind.ConflictsAutoClosed) => ActivityKindFactory.CreateConflictsAutoClosed(row.FileCount),
         nameof(ActivityKind.ConflictDetected) => ActivityKindFactory.CreateConflictDetected(row.FileName ?? string.Empty),
         nameof(ActivityKind.Authenticated) => ActivityKindFactory.CreateAuthenticated(),
         nameof(ActivityKind.NothingChanged) => ActivityKindFactory.CreateNothingChanged(),

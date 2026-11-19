@@ -41,10 +41,14 @@ public abstract record UploadItemOutcome
     /// <summary>The remote folder already existed and was linked.</summary>
     public sealed record Linked : UploadItemOutcome
     {
-        internal Linked(RelativeSyncPath path)
+        internal Linked(RelativeSyncPath path, bool isFile)
         {
             Path = path;
+            IsFile = isFile;
         }
+
+        /// <summary>True when a file both sides held identical content for was closed, false for a folder.</summary>
+        public bool IsFile { get; }
 
         /// <inheritdoc />
         public override RelativeSyncPath Path { get; }

@@ -19,6 +19,9 @@ public static class ActivityKindFactory
     /// <summary>Creates a conflict entry. A missing file name is normalised to an empty string.</summary>
     public static ActivityKind CreateConflictDetected(string fileName) => new ActivityKind.ConflictDetected(fileName ?? string.Empty);
 
+    /// <summary>Creates an auto-closed-conflicts entry. A negative count is normalised to zero.</summary>
+    public static ActivityKind CreateConflictsAutoClosed(int count) => new ActivityKind.ConflictsAutoClosed(Math.Max(count, 0));
+
     /// <summary>Creates an authenticated entry.</summary>
     public static ActivityKind CreateAuthenticated() => new ActivityKind.Authenticated();
 

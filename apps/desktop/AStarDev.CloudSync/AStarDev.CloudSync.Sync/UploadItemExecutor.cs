@@ -131,7 +131,7 @@ internal sealed class UploadItemExecutor(IUploadRecorder recorder, ISyncBaseline
 
     private Task<UploadItemOutcome> LinkedOrConflictAsync(PassRun run, UploadPlanItem.SendToConflicts conflict, Option<SyncBaselineEntry> link, CancellationToken cancellationToken) =>
         link.Match(
-            entry => baseline.UpsertAsync(run.AccountId, [entry], cancellationToken).MatchAsync(_ => UploadItemOutcomeFactory.CreateLinked(conflict.Path), _ => UploadItemOutcomeFactory.CreateFailed(conflict.Path, ProviderErrorFactory.CreateUnexpected())),
+            entry => baseline.UpsertAsync(run.AccountId, [entry], cancellationToken).MatchAsync(_ => UploadItemOutcomeFactory.CreateLinkedFile(conflict.Path), _ => UploadItemOutcomeFactory.CreateFailed(conflict.Path, ProviderErrorFactory.CreateUnexpected())),
             () => Task.FromResult(UploadItemOutcomeFactory.CreateSentToConflicts(conflict.Finding)));
 
     private async Task<UploadItemOutcome> RunFolderStepAsync(PassRun run, UploadPlanItem item, CancellationToken cancellationToken)

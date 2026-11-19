@@ -49,6 +49,27 @@ public sealed class GivenASyncPassRunnerThatLogsActivity : IDisposable
     }
 
     [Fact]
+    public async Task when_a_run_closes_identical_conflicts_then_one_summary_entry_counts_the_download_and_upload_closes()
+    {
+        Downloads(DownloadItemOutcomeFactory.CreateLinkedExisting());
+        Uploads(UploadItemOutcomeFactory.CreateLinkedFile(At("a.txt")), UploadItemOutcomeFactory.CreateLinkedFile(At("b.txt")), UploadItemOutcomeFactory.CreateLinked(At("folder")));
+
+        _ = await RunAsync();
+
+        services.ActivityLog.Appended.Select(entry => entry.Kind).ShouldBe([ActivityKindFactory.CreateConflictsAutoClosed(3)]);
+    }
+
+    [Fact]
+    public async Task when_a_run_links_only_a_folder_then_no_conflicts_closed_entry_is_appended()
+    {
+        Uploads(UploadItemOutcomeFactory.CreateLinked(At("folder")));
+
+        _ = await RunAsync();
+
+        services.ActivityLog.Appended.Select(entry => entry.Kind).ShouldBe([ActivityKindFactory.CreateNothingChanged()]);
+    }
+
+    [Fact]
     public async Task when_a_run_changes_nothing_then_a_nothing_changed_entry_is_appended_for_the_account_at_the_run_time()
     {
         _ = await RunAsync();
