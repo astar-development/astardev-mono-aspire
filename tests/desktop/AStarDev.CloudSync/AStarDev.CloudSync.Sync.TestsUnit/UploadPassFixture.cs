@@ -73,7 +73,7 @@ public sealed class UploadPassFixture : IDisposable
 
     public UploadPassFixture AddedFolder(string path) => Local(LocalChangeFactory.CreateAdded(UploadPlanFixture.At(path), LocalItemKindFactory.CreateFolder(), 0, Written));
 
-    public UploadPassFixture ModifiedFile(string path) => Local(LocalChangeFactory.CreateModified(UploadPlanFixture.At(path), 20, Written, UploadPlanFixture.Hash("new")));
+    public UploadPassFixture ModifiedFile(string path, long size = 20) => Local(LocalChangeFactory.CreateModified(UploadPlanFixture.At(path), size, Written, UploadPlanFixture.Hash("new")));
 
     public UploadPassFixture DeletedItem(string path, string itemId) => Local(LocalChangeFactory.CreateDeleted(UploadPlanFixture.At(path), UploadPlanFixture.Id(itemId)));
 

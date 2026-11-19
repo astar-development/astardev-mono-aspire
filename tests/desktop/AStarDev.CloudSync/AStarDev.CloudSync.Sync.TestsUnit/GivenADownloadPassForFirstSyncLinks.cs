@@ -11,6 +11,72 @@ public sealed class GivenADownloadPassForFirstSyncLinks
 
     private static LocalChange AddedFile(string path, long size) => LocalChangeFactory.CreateAdded(Path(path), LocalItemKindFactory.CreateFile(), size, new DateTimeOffset(2026, 11, 13, 11, 50, 0, TimeSpan.Zero));
 
+    private static LocalChange ModifiedFile(string path, long size) => LocalChangeFactory.CreateModified(Path(path), size, new DateTimeOffset(2026, 11, 13, 11, 50, 0, TimeSpan.Zero), ContentHashFactory.Create(new string('a', 64)).Match(hash => hash, _ => throw new InvalidOperationException("The test hash must be valid.")));
+
+    [Fact]
+    public async Task close_both_modified_when_hash_matches()
+    {
+        using var fixture = await CreateAsync(CancellationToken);
+        fixture.Docs();
+        _ = fixture.Synced("Docs/a.txt", "old", "a");
+        _ = fixture.Write("Docs/a.txt", "hello");
+        fixture.Remote.File("Docs/a.txt", "a", "c2", 5, HelloQuickXorHash);
+
+        var summary = Summary(await fixture.RunAsync(Changes(ModifiedFile("Docs/a.txt", 5)), CancellationToken));
+
+        (summary.LinkedExisting, summary.SentToConflicts, summary.Downloaded).ShouldBe((1, 0, 0));
+        fixture.Downloader.Calls.ShouldBeEmpty();
+        fixture.FileSystem.File.ReadAllText("/sync/root/Docs/a.txt").ShouldBe("hello");
+        fixture.Baseline.Find("Docs/a.txt").Kind.ShouldBeOfType<SyncBaselineKind.File>().CTag.ShouldBe(RemoteIds.CTag("c2"));
+    }
+
+    [Fact]
+    public async Task raise_conflict_when_hash_differs()
+    {
+        using var fixture = await CreateAsync(CancellationToken);
+        fixture.Docs();
+        _ = fixture.Synced("Docs/a.txt", "old", "a");
+        _ = fixture.Write("Docs/a.txt", "world");
+        fixture.Remote.File("Docs/a.txt", "a", "c2", 5, HelloQuickXorHash);
+
+        var summary = Summary(await fixture.RunAsync(Changes(ModifiedFile("Docs/a.txt", 5)), CancellationToken));
+
+        summary.LinkedExisting.ShouldBe(0);
+        summary.Conflicts.ShouldHaveSingleItem().Kind.ShouldBe(ConflictKindFactory.CreateBothModified());
+        fixture.Baseline.Find("Docs/a.txt").Kind.ShouldBeOfType<SyncBaselineKind.File>().CTag.ShouldBe(RemoteIds.CTag("c1"));
+    }
+
+    [Fact]
+    public async Task raise_conflict_when_cloud_hash_missing()
+    {
+        using var fixture = await CreateAsync(CancellationToken);
+        fixture.Docs();
+        _ = fixture.Synced("Docs/a.txt", "old", "a");
+        _ = fixture.Write("Docs/a.txt", "hello");
+        fixture.Remote.File("Docs/a.txt", "a", "c2", 5);
+
+        var summary = Summary(await fixture.RunAsync(Changes(ModifiedFile("Docs/a.txt", 5)), CancellationToken));
+
+        summary.LinkedExisting.ShouldBe(0);
+        summary.Conflicts.ShouldHaveSingleItem().Kind.ShouldBe(ConflictKindFactory.CreateBothModified());
+    }
+
+    [Fact]
+    public async Task not_close_both_modified_when_file_locked()
+    {
+        using var fixture = await CreateAsync(CancellationToken);
+        fixture.Docs();
+        _ = fixture.Synced("Docs/a.txt", "old", "a");
+        _ = fixture.Write("Docs/a.txt", "hello");
+        fixture.Remote.File("Docs/a.txt", "a", "c2", 5, HelloQuickXorHash);
+        using var handle = fixture.FileSystem.File.Open(LockedPath, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+
+        var summary = Summary(await fixture.RunAsync(Changes(ModifiedFile("Docs/a.txt", 5)), CancellationToken));
+
+        (summary.LinkedExisting, summary.SentToConflicts, summary.Failed).ShouldBe((0, 0, 1));
+        fixture.Baseline.Find("Docs/a.txt").Kind.ShouldBeOfType<SyncBaselineKind.File>().CTag.ShouldBe(RemoteIds.CTag("c1"));
+    }
+
     [Fact]
     public async Task when_both_sides_added_the_same_file_with_the_same_size_and_hash_then_it_is_linked_in_the_baseline_and_not_downloaded()
     {
