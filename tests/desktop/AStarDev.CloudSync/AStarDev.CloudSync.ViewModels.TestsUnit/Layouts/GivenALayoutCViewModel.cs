@@ -3,6 +3,7 @@ using AStarDev.CloudSync.Overview;
 using AStarDev.CloudSync.Sync;
 using AStarDev.CloudSync.TestHelpers.Common;
 using AStarDev.CloudSync.TestHelpers.Overview;
+using AStarDev.CloudSync.TestHelpers.Classification;
 using AStarDev.CloudSync.TestHelpers.Ui;
 using AStarDev.CloudSync.ViewModels.Layouts;
 using AStarDev.CloudSync.ViewModels.Overview;
@@ -18,7 +19,7 @@ public class GivenALayoutCViewModel
     public async Task when_the_new_sync_pair_command_runs_then_a_sync_pair_is_added_without_a_chosen_account()
     {
         var syncActions = new RecordingSyncActions();
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), syncActions, TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), syncActions, TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         await viewModel.NewSyncPairCommand.ExecuteAsync(null);
 
@@ -30,7 +31,7 @@ public class GivenALayoutCViewModel
     {
         var source = new CountingSyncOverviewSource(await TestData.CreateOverviewAsync());
         var overview = new SyncOverviewViewModel(source, TestData.CreateLocalization(), TestData.CreateTime(), NullLogger<SyncOverviewViewModel>.Instance);
-        var layout = new LayoutCViewModel(overview, new RecordingSyncActions(), TestData.CreateLocalization());
+        var layout = new LayoutCViewModel(overview, new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         await layout.AddAccountCommand.ExecuteAsync(null);
 
@@ -41,7 +42,7 @@ public class GivenALayoutCViewModel
     public async Task when_the_add_account_command_runs_then_an_account_is_added()
     {
         var syncActions = new RecordingSyncActions();
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), syncActions, TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), syncActions, TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         await viewModel.AddAccountCommand.ExecuteAsync(null);
 
@@ -51,7 +52,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_the_overview_is_loaded_then_the_headline_counts_pairs_in_sync_syncing_conflicts_and_paused()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         viewModel.Headline.ShouldBe("4 in sync, 1 syncing, 2 conflicts, 1 paused");
     }
@@ -59,7 +60,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public void when_the_overview_is_not_loaded_then_the_headline_counts_nothing()
     {
-        var viewModel = new LayoutCViewModel(CreateUnloadedOverview(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(CreateUnloadedOverview(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         viewModel.Headline.ShouldBe("0 in sync, 0 syncing, 0 conflicts, 0 paused");
     }
@@ -67,7 +68,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_the_overview_is_loaded_then_the_moved_today_line_shows_the_bytes_moved_today()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         viewModel.MovedTodayText.ShouldBe("3.1 GB moved today");
     }
@@ -75,7 +76,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public void when_the_overview_is_not_loaded_then_the_moved_today_line_shows_nothing_moved()
     {
-        var viewModel = new LayoutCViewModel(CreateUnloadedOverview(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(CreateUnloadedOverview(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         viewModel.MovedTodayText.ShouldBe("0 B moved today");
     }
@@ -89,7 +90,7 @@ public class GivenALayoutCViewModel
         var overview = new SyncOverviewViewModel(new FixedSyncOverviewSource(overviewData), TestData.CreateLocalization(), TestData.CreateTime(), NullLogger<SyncOverviewViewModel>.Instance);
         await overview.LoadAsync(TestContext.Current.CancellationToken);
 
-        var viewModel = new LayoutCViewModel(overview, new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(overview, new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         viewModel.Headline.ShouldBe("0 in sync, 0 syncing, 1 conflict, 0 paused");
     }
@@ -97,7 +98,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_the_overview_is_loaded_then_the_all_pairs_filter_counts_every_pair()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         viewModel.AllPairsFilterText.ShouldBe("All pairs · 7");
     }
@@ -105,7 +106,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_the_overview_is_loaded_then_there_is_one_provider_filter_per_provider_in_the_data()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         viewModel.ProviderFilters.Select(filter => filter.Label).ShouldBe(["OneDrive · 7"]);
     }
@@ -113,7 +114,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_the_overview_is_loaded_then_pairs_needing_attention_come_first_then_syncing_pairs()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         viewModel.SyncPairs.Select(pair => pair.Name).ShouldBe(["Holiday photos", "Documents", "Projects", "Desktop", "Recipes", "Music", "Backups"]);
     }
@@ -122,7 +123,7 @@ public class GivenALayoutCViewModel
     public async Task when_the_overview_loads_then_property_changed_is_raised_for_the_projections()
     {
         var overview = CreateUnloadedOverview();
-        var viewModel = new LayoutCViewModel(overview, new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(overview, new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         var changed = new List<string?>();
         viewModel.PropertyChanged += (_, args) => changed.Add(args.PropertyName);
 
@@ -138,7 +139,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_created_then_the_all_pairs_filter_is_selected_and_no_provider_filter_is()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         viewModel.IsAllPairsSelected.ShouldBeTrue();
         viewModel.ProviderFilters.ShouldAllBe(filter => !filter.IsSelected);
@@ -147,7 +148,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_a_provider_filter_is_selected_then_it_is_highlighted_instead_of_all_pairs()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         viewModel.ProviderFilters[0].SelectCommand.Execute(null);
 
@@ -158,7 +159,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_a_provider_filter_is_selected_then_only_pairs_matching_it_are_shown()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         var oneDriveFilter = viewModel.ProviderFilters[0];
 
         oneDriveFilter.SelectCommand.Execute(null);
@@ -170,7 +171,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_all_pairs_is_selected_after_a_provider_filter_then_every_pair_is_shown_and_all_pairs_is_highlighted()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         viewModel.ProviderFilters[0].SelectCommand.Execute(null);
 
         viewModel.SelectAllPairsCommand.Execute(null);
@@ -183,7 +184,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_a_provider_filter_is_selected_then_property_changed_is_raised_for_the_pairs_and_the_all_pairs_highlight()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         var changed = new List<string?>();
         viewModel.PropertyChanged += (_, args) => changed.Add(args.PropertyName);
 
@@ -197,7 +198,7 @@ public class GivenALayoutCViewModel
     public async Task when_the_overview_is_loaded_then_there_is_one_account_card_per_account_and_none_is_selected()
     {
         var overview = await TestData.CreateLoadedOverviewViewModelAsync();
-        var viewModel = new LayoutCViewModel(overview, new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(overview, new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         viewModel.AccountCards.Select(card => card.Account).ShouldBe(overview.Accounts);
         viewModel.AccountCards.ShouldAllBe(card => !card.IsSelected);
@@ -206,7 +207,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_an_account_card_is_selected_then_it_is_highlighted_and_only_its_pairs_are_shown()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         var card = viewModel.AccountCards.First(candidate => viewModel.Overview.SyncPairs.Any(pair => pair.AccountId == candidate.Account.Id));
 
         card.SelectCommand.Execute(null);
@@ -221,7 +222,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_a_different_account_card_is_selected_then_the_selection_moves_to_it()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         viewModel.AccountCards[0].SelectCommand.Execute(null);
 
         viewModel.AccountCards[1].SelectCommand.Execute(null);
@@ -233,7 +234,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_the_selected_account_card_is_selected_again_then_every_pair_is_shown()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         viewModel.AccountCards[0].SelectCommand.Execute(null);
 
         viewModel.AccountCards[0].SelectCommand.Execute(null);
@@ -245,7 +246,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_an_account_card_and_a_provider_filter_are_selected_then_only_pairs_passing_both_are_shown()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         var oneDriveFilter = viewModel.ProviderFilters[0];
         var card = viewModel.AccountCards.First(candidate => viewModel.Overview.SyncPairs.Any(pair => pair.AccountId == candidate.Account.Id));
 
@@ -259,7 +260,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_all_pairs_is_selected_after_an_account_card_then_the_account_selection_is_cleared()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         viewModel.AccountCards[0].SelectCommand.Execute(null);
 
         viewModel.SelectAllPairsCommand.Execute(null);
@@ -271,7 +272,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_an_account_card_is_selected_then_property_changed_is_raised_for_the_pairs_and_the_all_pairs_highlight()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         var changed = new List<string?>();
         viewModel.PropertyChanged += (_, args) => changed.Add(args.PropertyName);
 
@@ -286,7 +287,7 @@ public class GivenALayoutCViewModel
     {
         var overview = new SyncOverviewViewModel(new CountingSyncOverviewSource(await TestData.CreateOverviewAsync()), TestData.CreateLocalization(), TestData.CreateTime(), NullLogger<SyncOverviewViewModel>.Instance);
         await overview.LoadAsync(TestContext.Current.CancellationToken);
-        var viewModel = new LayoutCViewModel(overview, new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(overview, new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         var selectedId = viewModel.AccountCards[1].Account.Id;
         viewModel.AccountCards[1].SelectCommand.Execute(null);
 
@@ -298,7 +299,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_the_search_text_matches_a_pair_then_only_matching_pairs_are_shown()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         viewModel.SearchText = "  RECIPES ";
 
@@ -308,7 +309,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_the_search_text_matches_an_account_then_all_of_its_pairs_are_shown()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         var archive = viewModel.Overview.Accounts.Single(account => account.Name == "Archive");
 
         viewModel.SearchText = "archive@example";
@@ -321,7 +322,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_the_search_text_is_blank_again_then_every_pair_and_account_card_is_shown()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         viewModel.SearchText = "recipes";
 
         viewModel.SearchText = "   ";
@@ -332,7 +333,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_the_search_text_is_set_then_only_accounts_that_match_or_own_a_matching_pair_keep_a_card()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         var owner = viewModel.Overview.SyncPairs.Single(pair => pair.Name == "Recipes").AccountId;
 
         viewModel.SearchText = "recipes";
@@ -343,7 +344,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_the_search_text_changes_then_property_changed_is_raised_for_the_pairs_and_the_account_cards()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         var changed = new List<string?>();
         viewModel.PropertyChanged += (_, args) => changed.Add(args.PropertyName);
 
@@ -356,7 +357,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_the_search_text_and_a_provider_chip_and_an_account_card_are_combined_then_every_filter_applies()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         var owner = viewModel.Overview.SyncPairs.Single(pair => pair.Name == "Recipes").AccountId;
         viewModel.ProviderFilters[0].SelectCommand.Execute(null);
 
@@ -369,15 +370,15 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_created_then_the_command_search_placeholder_names_what_is_searched()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
-        viewModel.CommandSearchPlaceholder.ShouldBe("Search accounts and folders");
+        viewModel.CommandSearchPlaceholder.ShouldBe("Search accounts, folders and files");
     }
 
     [Fact]
     public void when_created_then_the_sort_options_are_needs_attention_first_and_name()
     {
-        var viewModel = new LayoutCViewModel(CreateUnloadedOverview(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(CreateUnloadedOverview(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         viewModel.SortOptions.Select(option => option.Label).ShouldBe(["needs attention first", "name"]);
         viewModel.SortOptions[0].Order.ShouldBeOfType<LayoutCSortOrder.NeedsAttentionFirst>();
@@ -387,7 +388,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public void when_created_then_the_sort_is_needs_attention_first()
     {
-        var viewModel = new LayoutCViewModel(CreateUnloadedOverview(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(CreateUnloadedOverview(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         viewModel.SelectedSortOption.ShouldBeSameAs(viewModel.SortOptions[0]);
         viewModel.SortText.ShouldBe("Sort: needs attention first");
@@ -396,7 +397,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_the_sort_is_changed_to_name_then_the_pairs_are_in_name_order_and_the_sort_text_follows()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         viewModel.SelectedSortOption = viewModel.SortOptions[1];
 
@@ -407,7 +408,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public async Task when_the_sort_is_changed_then_property_changed_is_raised_for_the_pairs_and_the_sort_text()
     {
-        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
         var changed = new List<string?>();
         viewModel.PropertyChanged += (_, args) => changed.Add(args.PropertyName);
 
@@ -420,7 +421,7 @@ public class GivenALayoutCViewModel
     [Fact]
     public void when_created_then_the_static_text_is_localised()
     {
-        var viewModel = new LayoutCViewModel(CreateUnloadedOverview(), new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(CreateUnloadedOverview(), new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         string[] texts = [viewModel.Title, viewModel.CommandSearchPlaceholder, viewModel.CommandSearchShortcut, viewModel.NewSyncPairText, viewModel.StatusLabel, viewModel.SortText, viewModel.LiveActivityText, viewModel.LiveText, viewModel.AccountsText, viewModel.AddAccountText];
 
@@ -432,10 +433,80 @@ public class GivenALayoutCViewModel
     {
         var overview = CreateUnloadedOverview();
 
-        var viewModel = new LayoutCViewModel(overview, new RecordingSyncActions(), TestData.CreateLocalization());
+        var viewModel = new LayoutCViewModel(overview, new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization());
 
         viewModel.Overview.ShouldBeSameAs(overview);
     }
 
     private static SyncOverviewViewModel CreateUnloadedOverview() => new(new PlaceholderSyncOverviewSource(TestData.CreateTime()), TestData.CreateLocalization(), TestData.CreateTime(), NullLogger<SyncOverviewViewModel>.Instance);
+
+    private static async Task<LayoutCViewModel> CreateWithPageAsync(ViewModels.Classification.ClassificationPageViewModel? page = null) =>
+        new(await TestData.CreateLoadedOverviewViewModelAsync(), new RecordingSyncActions(), page ?? TestData.CreateClassificationPage(), TestData.CreateLocalization());
+
+    [Fact]
+    public async Task when_the_command_box_has_text_then_the_search_results_are_shown_with_the_same_text()
+    {
+        var layout = await CreateWithPageAsync();
+
+        layout.SearchText = "recipes";
+
+        (layout.IsSearchPageShown, layout.IsDashboardShown, layout.Search.SearchText).ShouldBe((true, false, "recipes"));
+    }
+
+    [Fact]
+    public async Task when_the_command_box_is_cleared_then_the_dashboard_is_shown_again()
+    {
+        var layout = await CreateWithPageAsync();
+        layout.SearchText = "recipes";
+
+        layout.SearchText = string.Empty;
+
+        (layout.IsSearchPageShown, layout.IsDashboardShown).ShouldBe((false, true));
+    }
+
+    [Fact]
+    public async Task when_the_results_box_changes_then_the_command_box_follows()
+    {
+        var layout = await CreateWithPageAsync();
+
+        layout.Search.SearchText = "recipes";
+
+        (layout.SearchText, layout.IsSearchPageShown).ShouldBe(("recipes", true));
+    }
+
+    [Fact]
+    public async Task when_an_account_is_opened_from_the_results_then_the_dashboard_shows_that_account()
+    {
+        var layout = await CreateWithPageAsync();
+        layout.SearchText = "archive@";
+
+        layout.Search.OpenAccountCommand.Execute(layout.Search.Accounts.Single());
+
+        (layout.IsDashboardShown, layout.AccountCards.Single(card => card.IsSelected).Account.Name).ShouldBe((true, "Archive"));
+    }
+
+    [Fact]
+    public async Task when_classification_is_chosen_then_its_page_is_shown_and_the_dashboard_can_be_chosen_again()
+    {
+        var layout = await CreateWithPageAsync();
+
+        layout.ShowClassificationCommand.Execute(null);
+        var whileShown = (layout.IsClassificationPageShown, layout.IsDashboardShown, layout.Classification.Tabs.Terms.LoadCommand.ExecutionTask is not null);
+        layout.ShowDashboardCommand.Execute(null);
+
+        (whileShown, layout.IsDashboardShown, layout.ClassificationText, layout.DashboardText).ShouldBe(((true, false, true), true, "Classification", "Dashboard"));
+    }
+
+    [Fact]
+    public async Task when_a_term_asks_for_its_files_then_the_search_results_are_shown_with_the_term_chip_selected()
+    {
+        var page = TestData.CreateClassificationPage(new FakeTermStore(ClassificationTestData.Term("teal", ClassificationTestData.NewCategoryId())));
+        var layout = await CreateWithPageAsync(page);
+        await page.Tabs.Terms.LoadCommand.ExecuteAsync(null);
+
+        page.Tabs.Terms.OpenFilesCommand.Execute(page.Tabs.Terms.Rows.Single());
+
+        layout.IsSearchPageShown.ShouldBeTrue();
+        layout.Search.Files.Chips.Select(chip => (chip.Label, chip.IsSelected)).ShouldBe([("teal", true)]);
+    }
 }

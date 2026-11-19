@@ -40,7 +40,7 @@ public class GivenTheFailedSyncSnapshots
         {
             "a" => new LayoutAView { DataContext = new LayoutAViewModel(overview, actions, TestData.CreateConflictListFactory(), TestData.CreateFolderSelectionFactory(), TestData.CreateActivityListFactory(), TestData.CreateClassificationPage(), localization) },
             "b" => new LayoutBView { DataContext = new LayoutBViewModel(overview, TestData.CreateLocalPathFormatter(), actions, TestData.CreateConflictListFactory(), TestData.CreateFolderSelectionFactory(), TestData.CreateActivityListFactory(), TestData.CreateClassificationPage(), localization) },
-            _ => new LayoutCView { DataContext = new LayoutCViewModel(overview, actions, localization) }
+            _ => new LayoutCView { DataContext = new LayoutCViewModel(overview, actions, TestData.CreateClassificationPage(), localization) }
         };
 
         return new Window { Content = view };

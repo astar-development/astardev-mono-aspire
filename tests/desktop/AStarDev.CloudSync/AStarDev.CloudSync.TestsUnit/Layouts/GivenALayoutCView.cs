@@ -29,7 +29,7 @@ public class GivenALayoutCView
     }
 
     [AvaloniaFact]
-    public async Task when_text_is_typed_in_the_command_search_box_then_only_matching_pair_tiles_and_account_cards_remain()
+    public async Task when_text_is_typed_in_the_command_search_box_then_the_matching_folder_is_listed_in_the_results_and_only_matching_account_cards_remain()
     {
         var window = await CreateShownWindowAsync();
         var searchBox = window.GetVisualDescendants().OfType<TextBox>().Single(textBox => textBox.Name == "CommandSearchBox");
@@ -37,7 +37,7 @@ public class GivenALayoutCView
         searchBox.Text = "recipes";
         Dispatcher.UIThread.RunJobs();
 
-        window.GetVisualDescendants().OfType<Border>().Count(border => border.Classes.Contains("pair-tile")).ShouldBe(1);
+        window.GetVisualDescendants().OfType<TextBlock>().Select(text => text.Text).ShouldContain("Recipes");
         window.GetVisualDescendants().OfType<Border>().Count(border => border.Classes.Contains("account-card")).ShouldBe(1);
     }
 
@@ -207,7 +207,7 @@ public class GivenALayoutCView
     private static async Task<Window> CreateShownWindowAsync()
     {
         var overview = await TestData.CreateLoadedOverviewViewModelAsync();
-        var window = new Window { Width = 1280, Height = 800, Content = new LayoutCView { DataContext = new LayoutCViewModel(overview, new RecordingSyncActions(), TestData.CreateLocalization()) } };
+        var window = new Window { Width = 1280, Height = 800, Content = new LayoutCView { DataContext = new LayoutCViewModel(overview, new RecordingSyncActions(), TestData.CreateClassificationPage(), TestData.CreateLocalization()) } };
         window.Show();
         Dispatcher.UIThread.RunJobs();
 
