@@ -36,6 +36,37 @@ public sealed class GivenAnUploadPassForFirstSyncLinks : IDisposable
     }
 
     [Fact]
+    public async Task close_both_modified_when_hash_matches()
+    {
+        WriteLocal("hello");
+        fixture.Remote.Folder("Docs", "remote-docs");
+        fixture.Remote.File("Docs/a.txt", "r1", "c2", 5, HelloQuickXorHash);
+        _ = await fixture.BaselineFile("Docs/a.txt", "r1", "c1").ModifiedFile("Docs/a.txt", 5).BuildAsync(CancellationToken);
+
+        var result = await fixture.RunAsync(CancellationToken);
+
+        var summary = result.Match(found => found, failure => throw new InvalidOperationException(failure.GetType().Name));
+        (summary.Linked, summary.SentToConflicts, summary.Uploaded).ShouldBe((1, 0, 0));
+        fixture.Uploader.Calls.ShouldBeEmpty();
+        fixture.Baseline.Find("Docs/a.txt").Kind.ShouldBeOfType<SyncBaselineKind.File>().CTag.ShouldBe(new ContentTag("c2"));
+    }
+
+    [Fact]
+    public async Task raise_conflict_when_hash_differs()
+    {
+        WriteLocal("world");
+        fixture.Remote.Folder("Docs", "remote-docs");
+        fixture.Remote.File("Docs/a.txt", "r1", "c2", 5, HelloQuickXorHash);
+        _ = await fixture.BaselineFile("Docs/a.txt", "r1", "c1").ModifiedFile("Docs/a.txt", 5).BuildAsync(CancellationToken);
+
+        var result = await fixture.RunAsync(CancellationToken);
+
+        var summary = result.Match(found => found, failure => throw new InvalidOperationException(failure.GetType().Name));
+        (summary.Linked, summary.SentToConflicts).ShouldBe((0, 1));
+        fixture.Baseline.Find("Docs/a.txt").Kind.ShouldBeOfType<SyncBaselineKind.File>().CTag.ShouldBe(new ContentTag("c1"));
+    }
+
+    [Fact]
     public async Task when_the_remote_file_has_no_hash_then_it_goes_to_conflicts_with_both_snapshots_and_nothing_is_linked()
     {
         WriteLocal("hello");

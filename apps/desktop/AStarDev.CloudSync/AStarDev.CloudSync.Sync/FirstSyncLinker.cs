@@ -7,7 +7,7 @@ using LinkCandidate = (AStarDev.CloudSync.Sync.RemoteItemSnapshot Item, AStarDev
 
 namespace AStarDev.CloudSync.Sync;
 
-/// <summary>Decides whether a file both sides added is the same file (SE-06, #1534): the sizes and the cloud's QuickXorHash must match. A cloud item without a hash is never linked. A local file that cannot be read, or that changed since the scan, is a failure to retry on the next pass, never a mismatch. A link is the baseline row; the caller writes it. The file is read once for both the cloud hash and the SHA-256 the baseline keeps.</summary>
+/// <summary>Decides whether a file both sides added or modified is the same file (SE-06, #1534): the sizes and the cloud's QuickXorHash must match. A cloud item without a hash is never linked. A local file that cannot be read, or that changed since the scan, is a failure to retry on the next pass, never a mismatch. A link is the baseline row; the caller writes it. The file is read once for both the cloud hash and the SHA-256 the baseline keeps.</summary>
 internal static class FirstSyncLinker
 {
     private static readonly Result<Option<SyncBaselineEntry>, LocalOperationFailure> NotLinked = Result.Success<Option<SyncBaselineEntry>, LocalOperationFailure>(Option.None<SyncBaselineEntry>());
@@ -19,7 +19,7 @@ internal static class FirstSyncLinker
 
     private static Option<LinkCandidate> CandidateOf(ConflictFinding finding, Option<RemoteItemSnapshot> remoteItem)
     {
-        if (finding.Kind is not ConflictKind.BothAdded || finding.Local is not SideSnapshot.Present local)
+        if (finding.Kind is not (ConflictKind.BothAdded or ConflictKind.BothModified) || finding.Local is not SideSnapshot.Present local)
             return Option.None<LinkCandidate>();
 
         return remoteItem.Match(item => item.Kind is RemoteItemKind.File file && file.Size == local.Size ? file.Hash.Map(hash => (item, file, hash, local.Size)) : Option.None<LinkCandidate>(), Option.None<LinkCandidate>);
